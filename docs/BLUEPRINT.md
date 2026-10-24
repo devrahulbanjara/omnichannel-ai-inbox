@@ -34,8 +34,8 @@ Locked choices are marked 🔒. The rest are proposals until decided.
 | Dashboard 🔒 | **Next.js** (App Router) + TypeScript + Tailwind CSS v4 + shadcn/ui (Radix) + lucide-react + TanStack Query; glass UI design system (see `apps/web`) |
 | Chat widget | Preact + TypeScript, single `<script>` embed, iframe-isolated |
 | Object storage | MinIO (S3-compatible) |
-| LLM tracing & evals | Langfuse (self-hosted) |
-| Logs / metrics / traces | OpenTelemetry → Grafana, Prometheus, Tempo, Loki |
+| LLM tracing & evals | Langfuse (Cloud Hobby tier first; self-host optional later — needs ClickHouse + Redis + S3). Own eval harness. Not LangSmith (LangChain-centric, proprietary). |
+| Logs / metrics / traces | OpenTelemetry → Grafana, Prometheus, Tempo, Loki (`grafana/otel-lgtm` single container in dev) |
 | Testing | pytest, Playwright (E2E), k6 (load) |
 | Local infra | Docker Compose; Cloudflare Tunnel for public webhook URLs |
 | CI | GitHub Actions (lint, typecheck, tests, evals, migrations check) |
@@ -207,6 +207,8 @@ class ChannelAdapter(Protocol):
 | **Instagram** | Same Meta webhook | Graph API messages endpoint | Generic template, quick replies | Same 24h / HUMAN_AGENT rules; echoes; professional account required | Same app + own professional account |
 | **WhatsApp** | Cloud API webhook: `messages`, `statuses` | `/{phone-number-id}/messages` | Interactive: reply buttons (≤3), list, CTA URL; media | 24h customer-service window; outside it only approved templates | Free test number, ≤5 verified recipients |
 | **Email** | IMAP poll / Gmail push; dev: Mailpit | SMTP / Gmail API | HTML | Thread by `Message-ID`, `In-Reply-To`, `References`; strip quoted replies & signatures | Mailpit in Docker |
+
+**Simgram (channel simulator).** Until real channels are connected, customers use Simgram (`apps/simulator`): an Instagram-like customer chat UI plus a fake platform API that mimics Meta's webhooks (signed `X-Hub-Signature-256`, verify handshake, retries), send API, profile lookup, postbacks and OAuth-style account linking. It is a normal `ChannelAdapter`, so real Instagram later is a new adapter, not a redesign. See `ROADMAP.md`.
 
 **Webhook ingress rule:** verify → store raw in `webhook_event` → enqueue → return `200` within milliseconds. Never call the LLM inside the webhook request.
 
