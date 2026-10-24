@@ -33,7 +33,7 @@ Templates. Replace the brackets with real facts **only once they're true**.
 1. **Problem and constraints** (stores selling through DMs; AI must never invent prices; webhooks retry)
 2. **Architecture** (ingress → Postgres + job queue → worker → LLM → send; WebSocket for live UI)
 3. **Hardest problem** (e.g. duplicate replies from webhook retries → transactional enqueue + dedupe)
-4. **Key trade-offs** (Postgres queue vs Redis queue; own agent loop vs LangChain; Simgram vs real Instagram)
+4. **Key trade-offs** (Postgres queue vs Redis queue; own agent loop vs LangChain; RahulCoolGram vs real Instagram)
 5. **How I know it works** (evals, chaos test, load test, tracing)
 6. **What I'd change** (be honest; interviewers love this)
 
@@ -197,7 +197,7 @@ Fill this table from `JOURNAL.md` as you go. Aim for 6–8 strong stories by Mil
 | A time you improved quality | Eval score before/after a prompt or tool change | ☐ |
 | A time you learned something fast | First time with OpenTelemetry / RLS / WebSockets | ☐ |
 | A failure | The postmortem (step 43) | ☐ |
-| Prioritising | Choosing Simgram over real Instagram; AI before auth | ☐ |
+| Prioritising | Choosing RahulCoolGram over real Instagram; AI before auth | ☐ |
 | Handling ambiguity | Deciding when the agent should hand off | ☐ |
 
 Story template:
@@ -250,7 +250,7 @@ Weak spots get logged in `JOURNAL.md` and come back in later mocks.
 - Never claim a scale, metric or feature you haven't built and measured.
 - It's fine — good, even — to say "I haven't done X; here's how I would approach it."
 - Know every line you wrote. If AI helped write code, you must still be able to explain it and defend it.
-- Simgram is a strength, not a weakness: "I built a platform simulator with the same contract as Meta's API so I could test retries, duplicates and failures on purpose."
+- RahulCoolGram is a strength, not a weakness: "I built a platform simulator with the same contract as Meta's API so I could test retries, duplicates and failures on purpose."
 
 ---
 

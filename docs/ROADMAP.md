@@ -39,7 +39,7 @@ A step is finished only when **all** of these are true:
 ### Where we end up
 
 ```
-  Simgram (fake Instagram)                        Dashboard (Next.js)
+  RahulCoolGram (fake Instagram)                  Dashboard (Next.js)
   customer phone UI + fake Meta API               inbox · conversation · AI inspector
         │  signed webhooks ▲ send API                   ▲ REST        ▲ WebSocket
         ▼                  │                             │             │
@@ -61,7 +61,7 @@ A step is finished only when **all** of these are true:
 ### Where we start (Stage A)
 
 ```
-  Simgram ──webhook──▶ API ──▶ Postgres ◀── API ◀──REST── Dashboard
+  RahulCoolGram ──webhook──▶ API ──▶ Postgres ◀── API ◀──REST── Dashboard
      ▲                  │
      └────send API──────┘
 ```
@@ -82,18 +82,18 @@ No AI, no queue, no Redis, no login. Just a real inbox with a fake customer. Eve
 
 ---
 
-## 3. Simgram — our fake Instagram
+## 3. RahulCoolGram — our fake Instagram
 
-Real Instagram needs a Meta app, review, a business account and a public URL. That's a lot of setup and teaches little. Instead we build **Simgram** (`apps/simulator`), which plays two roles:
+Real Instagram needs a Meta app, review, a business account and a public URL. That's a lot of setup and teaches little. Instead we build **RahulCoolGram** (`apps/simulator`), which plays two roles:
 
 1. **The customer's phone.** An Instagram-DM-like screen: pick a customer persona, open a chat with a business account (e.g. Himal Luggage Co.), send messages, see replies, tap buttons on product cards.
 2. **The platform (fake Meta).** It talks to our backend the way real Instagram does, so our backend code is the same code that would talk to Meta.
 
-### What Simgram copies from the real Instagram platform
+### What RahulCoolGram copies from the real Instagram platform
 
-These are the real Meta behaviours (from Meta's Instagram webhook docs). Simgram copies each one, so every lesson transfers.
+These are the real Meta behaviours (from Meta's Instagram webhook docs). RahulCoolGram copies each one, so every lesson transfers.
 
-| Real Meta behaviour | Simgram | Step |
+| Real Meta behaviour | RahulCoolGram | Step |
 |---|---|---|
 | **Verification handshake.** Meta sends `GET ?hub.mode=subscribe&hub.verify_token=…&hub.challenge=…`. Your server checks the token and returns the challenge. | Same, when you "subscribe" a webhook URL | 9 |
 | **Signed webhooks.** Every `POST` carries `X-Hub-Signature-256: sha256=<HMAC-SHA256 of the raw body with the app secret>`. Verify on the **raw bytes**, before parsing JSON. | Same | 9 |
@@ -105,10 +105,10 @@ These are the real Meta behaviours (from Meta's Instagram webhook docs). Simgram
 | **Echoes.** Messages your own account sends come back as webhooks with `is_echo: true`. | Same | 10 |
 | **Read receipts.** `read: {mid}` events. | Same | 15 |
 | **Postbacks.** Button taps arrive as `postback: {mid, title, payload}`. | Same | 25 |
-| **Account linking.** Business connects its Instagram via an OAuth flow → access token. | "Connect Simgram account" | 34 |
+| **Account linking.** Business connects its Instagram via an OAuth flow → access token. | "Connect RahulCoolGram account" | 34 |
 | — | **Chaos switches:** duplicate, delay, drop, 500 on send | 9, 40 |
 
-On our side, Simgram is just one implementation of `ChannelAdapter` (`verify`, `parse`, `send`, `render`). Real Instagram later is a second implementation of the same interface.
+On our side, RahulCoolGram is just one implementation of `ChannelAdapter` (`verify`, `parse`, `send`, `render`). Real Instagram later is a second implementation of the same interface.
 
 ---
 
@@ -122,7 +122,7 @@ On our side, Simgram is just one implementation of `ChannelAdapter` (`verify`, `
   - `README.md`: one paragraph on what the project is, how to run it, link to docs. (It grows every stage.)
   - `docs/adr/0000-template.md` (Michael Nygard format: *Title, Status, Context, Decision, Consequences*), plus the first two ADRs:
     - `0001-stack.md`: FastAPI + Postgres + Procrastinate + own agent loop (copy reasons from the blueprint decision log).
-    - `0002-simgram.md`: why a simulator instead of real Instagram.
+    - `0002-rahulcoolgram.md`: why a simulator instead of real Instagram.
   - `docs/JOURNAL.md`: your learning log.
   - GitHub: a **Project board** with one issue per step; branch protection on `main` (PR required, CI must pass).
   - Commit style: [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
@@ -198,19 +198,19 @@ On our side, Simgram is just one implementation of `ChannelAdapter` (`verify`, `
 - **Done when:** a reply is saved and shown; sending the same request twice with the same key creates one row.
 - **Interview:** "How does Stripe stop a double charge when a client retries?"
 
-### Step 8 · Simgram v1
+### Step 8 · RahulCoolGram v1
 
 - **Goal:** a customer who talks to the store.
-- **Build:** `apps/simulator`: a small FastAPI app with its own SQLite file, serving an Instagram-DM-like page. A customer sends a message → Simgram `POST`s a simple JSON webhook to our API → API finds-or-creates the contact and conversation and stores the message.
+- **Build:** `apps/simulator`: a small FastAPI app with its own SQLite file, serving an Instagram-DM-like page. A customer sends a message → RahulCoolGram `POST`s a simple JSON webhook to our API → API finds-or-creates the contact and conversation and stores the message.
 - **Learn:** webhooks (§1): who calls whom; two services with separate databases.
-- **Done when:** a Simgram message appears in the dashboard after a refresh.
+- **Done when:** a RahulCoolGram message appears in the dashboard after a refresh.
 - **Interview:** "What's a webhook, and how is it different from polling an API?"
 
 ### Step 9 · Webhooks done right
 
 - **Goal:** ingress that a real platform could call.
 - **Why now:** step 8 trusts anyone and breaks on retries.
-- **Build:** Meta-shaped payloads; `X-Hub-Signature-256` verification on the raw body (constant-time compare); verification handshake; every request stored raw in `webhook_event`; dedupe with `UNIQUE(channel_id, external_id)` + `ON CONFLICT DO NOTHING`; Simgram retries with backoff, has a "send twice" switch, and can batch several events in one request.
+- **Build:** Meta-shaped payloads; `X-Hub-Signature-256` verification on the raw body (constant-time compare); verification handshake; every request stored raw in `webhook_event`; dedupe with `UNIQUE(channel_id, external_id)` + `ON CONFLICT DO NOTHING`; RahulCoolGram retries with backoff, has a "send twice" switch, and can batch several events in one request.
 - **Learn:** HMAC, replay and spoofing, idempotent consumers, at-least-once delivery (§4, §7).
 - **Production bar:** reject before parsing; keep the raw payload for debugging and replay; a duplicate is a no-op, not an error.
 - **Done when:** wrong signature → 401; duplicate webhook → one message; batch of 3 → 3 messages.
@@ -219,10 +219,10 @@ On our side, Simgram is just one implementation of `ChannelAdapter` (`verify`, `
 ### Step 10 · Outbound messages
 
 - **Goal:** staff replies reach the customer.
-- **Build:** a `ChannelAdapter` interface with a Simgram implementation; staff reply → adapter calls Simgram's send API (`httpx`, explicit timeouts) → store the returned external id → ignore the matching `is_echo` webhook; message `delivery_status` (`queued → sent → failed`).
+- **Build:** a `ChannelAdapter` interface with a RahulCoolGram implementation; staff reply → adapter calls RahulCoolGram's send API (`httpx`, explicit timeouts) → store the returned external id → ignore the matching `is_echo` webhook; message `delivery_status` (`queued → sent → failed`).
 - **Learn:** HTTP clients, timeouts, error classes (retry 5xx/429, don't retry 4xx), adapters/ports (§6).
 - **Production bar:** every outbound call has a timeout; failures are visible in the UI, never silent.
-- **Done when:** a full conversation works both ways; stopping Simgram shows a "failed" badge instead of an error page.
+- **Done when:** a full conversation works both ways; stopping RahulCoolGram shows a "failed" badge instead of an error page.
 - **Interview:** "Which errors should you retry and which not?" · "Why put channels behind an interface?"
 
 ### Step 11 · Live updates
@@ -230,10 +230,10 @@ On our side, Simgram is just one implementation of `ChannelAdapter` (`verify`, `
 - **Goal:** no more refreshing.
 - **Build:** first, polling (`refetchInterval`); then a FastAPI WebSocket with rooms (`org:{id}`, `conversation:{id}`); on reconnect the client refetches since its last seen message.
 - **Learn:** polling vs SSE vs WebSocket, rooms, reconnect and resync (§5).
-- **Done when:** a Simgram message appears in the dashboard instantly, and vice versa; killing and restarting the API loses nothing on screen.
+- **Done when:** a RahulCoolGram message appears in the dashboard instantly, and vice versa; killing and restarting the API loses nothing on screen.
 - **Interview:** "Design a chat system: how do messages get pushed to clients?" · "What happens when a client reconnects?"
 
-**Milestone A** — record a 1-minute screen capture: customer writes in Simgram → staff sees it live → replies → customer sees it. Update the README.
+**Milestone A** — record a 1-minute screen capture: customer writes in RahulCoolGram → staff sees it live → replies → customer sees it. Update the README.
 
 ---
 
@@ -252,7 +252,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 ### Step 13 · Auto-reply, the naive way
 
 - **Build:** when a conversation is assigned to AI, call the LLM **inside the webhook request** and send the reply.
-- **Why:** to *see* why the blueprint forbids this. Turn on Simgram's slow mode: the webhook times out, Simgram retries, the customer gets **duplicate replies**.
+- **Why:** to *see* why the blueprint forbids this. Turn on RahulCoolGram's slow mode: the webhook times out, RahulCoolGram retries, the customer gets **duplicate replies**.
 - **Done when:** you can reproduce the duplicate and explain it. Write it in the journal — it's an interview story.
 - **Interview:** "Why must webhook handlers return fast?"
 
@@ -266,14 +266,14 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 
 ### Step 15 · Human-like timing
 
-- **Build:** debounce (wait ~3 s after the last customer message, so split messages get one answer); one agent run per conversation at a time (Procrastinate queueing lock + execution lock); typing indicator and read receipts in Simgram.
+- **Build:** debounce (wait ~3 s after the last customer message, so split messages get one answer); one agent run per conversation at a time (Procrastinate queueing lock + execution lock); typing indicator and read receipts in RahulCoolGram.
 - **Learn:** debounce, locks, race conditions. Known pitfall: a worker that dies can leave a lock held, so add a periodic task that frees stalled jobs.
 - **Done when:** sending "hi" / "do you have" / "black bags?" quickly gets **one** reply; the typing dots show.
 - **Interview:** "How do you prevent two workers replying to the same conversation?"
 
 ### Step 16 · Telemetry, layer 2: traces across processes
 
-- **Why now:** a message now passes through API → Postgres queue → worker → LLM → Simgram. When it's slow, logs alone can't tell you where.
+- **Why now:** a message now passes through API → Postgres queue → worker → LLM → RahulCoolGram. When it's slow, logs alone can't tell you where.
 - **Build:** OpenTelemetry in API and worker (FastAPI, SQLAlchemy and httpx auto-instrumentation); trace context passed through the job so **one trace covers webhook → job → LLM → send**; a single `grafana/otel-lgtm` container in Compose (Grafana + Prometheus + Tempo + Loki in one) for local dev.
 - **Learn:** traces, spans, context propagation; the four golden signals (latency, traffic, errors, saturation) (§10).
 - **Done when:** in Grafana you open one trace and see where the 4 seconds went.
@@ -282,7 +282,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 ### Step 17 · Eval harness v0
 
 - **Why now:** from the next step on you'll change prompts constantly. Without tests for AI behaviour you can't tell if a change helped or hurt. Industry treats evals as the main thing that separates serious AI work from demos.
-- **Build:** `evals/` with 10 scripted conversations played through Simgram's API (greeting, FAQ, Nepali, Roman Nepali, "talk to a human", rude customer, prompt injection). Deterministic assertions (language, length, no invented prices). Results saved as a table you can compare between runs. LLM responses cached so re-runs are free and repeatable.
+- **Build:** `evals/` with 10 scripted conversations played through RahulCoolGram's API (greeting, FAQ, Nepali, Roman Nepali, "talk to a human", rude customer, prompt injection). Deterministic assertions (language, length, no invented prices). Results saved as a table you can compare between runs. LLM responses cached so re-runs are free and repeatable.
 - **Learn:** golden datasets, assertions vs LLM-as-judge, regression testing for AI (§8).
 - **Done when:** `uv run evals` prints a scorecard; a deliberately bad prompt makes the score drop.
 - **Interview:** "How do you test an LLM application?" · "How do you know a prompt change didn't make things worse?"
@@ -335,9 +335,9 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 
 ### Step 24 · Ship it: first deploy
 
-- **Build:** Dockerfiles for API, worker, web, Simgram; deploy to a cheap host with managed Postgres; secrets in the host's secret store; CD on merge to `main`; migrations run as a deploy step; a public demo link.
+- **Build:** Dockerfiles for API, worker, web, RahulCoolGram; deploy to a cheap host with managed Postgres; secrets in the host's secret store; CD on merge to `main`; migrations run as a deploy step; a public demo link.
 - **Learn:** container images, CD, zero-downtime migrations, rollback.
-- **Done when:** anyone with the link can chat as a Simgram customer and watch the dashboard.
+- **Done when:** anyone with the link can chat as a RahulCoolGram customer and watch the dashboard.
 - **Interview:** "How do you deploy a database migration safely?" · "How would you roll back a bad release?"
 
 **Milestone B** — a 2-minute demo video of the agent answering, using a tool, handing off, with the run inspector open. This is the core of your portfolio.
@@ -349,7 +349,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 | # | Step | Build | Key lesson |
 |---|---|---|---|
 | 25 | Catalog | Products, variants, inventory, store API, seeded stores (luggage, clothing) | Separate module (`commerce`) that never imports AI code |
-| 26 | Product cards + postbacks | Agent sends card carousels; Simgram renders them; **Buy now** / **Details** taps arrive as postbacks handled by code | Deterministic handling of structured input |
+| 26 | Product cards + postbacks | Agent sends card carousels; RahulCoolGram renders them; **Buy now** / **Details** taps arrive as postbacks handled by code | Deterministic handling of structured input |
 | 27 | Cart + sales state machine | `browsing → product_chosen → collecting_details → choosing_payment → awaiting_confirmation → order_placed`; tools allowed per state are enforced by code | "The LLM chooses, code decides" |
 | 28 | Zones + quote | Delivery zones and fees; immutable quote snapshot; any change invalidates it | Never trust model arithmetic |
 | 29 | Create order | One transaction: lock variants, check stock and price, next order number (row lock), insert, consume quote; idempotent on `quote_id` | Double "yes" = one order |
@@ -366,7 +366,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 |---|---|---|---|
 | 32 | Login | Users, argon2id hashing, httpOnly session cookies, CSRF protection | Authentication done right |
 | 33 | Roles | owner / admin / agent checks in services | Authorization (RBAC) |
-| 34 | Connect Simgram account | OAuth-style flow: authorize → code → token; token **encrypted at rest** | Exactly how real Instagram linking works |
+| 34 | Connect RahulCoolGram account | OAuth-style flow: authorize → code → token; token **encrypted at rest** | Exactly how real Instagram linking works |
 | 35 | Second store + RLS | Postgres row-level security with `SET LOCAL` per transaction, `FORCE ROW LEVEL SECURITY`, `WITH CHECK`, app role without `BYPASSRLS`; a test that org A can never read org B, including across pooled connections | Multi-tenancy as a database guarantee |
 | 36 | Team tools | Notes, quick replies, tickets with numbering per store | Real product features |
 
@@ -379,14 +379,14 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 | 37 | SLOs and alerts | Define SLOs (e.g. 99% of AI replies sent within 15 s), dashboards for the golden signals + queue depth + LLM cost, alerts on SLO burn, a **runbook** per alert | Monitoring that pages for user pain, not CPU |
 | 38 | Evals in CI | Eval suite runs on every PR that touches prompts/tools; LLM-judge rubrics; scores tracked over time | AI regressions caught before merge |
 | 39 | RAG | Gemini embeddings + pgvector; hybrid (keyword + vector) search; retrieval metrics (recall@k) | When and why to add RAG |
-| 40 | Load and chaos | k6 load test; Simgram chaos mode (duplicates, delays, 500s); kill workers mid-run | Prove: no lost messages, no duplicate orders |
+| 40 | Load and chaos | k6 load test; RahulCoolGram chaos mode (duplicates, delays, 500s); kill workers mid-run | Prove: no lost messages, no duplicate orders |
 | 41 | Security hardening | Rate limits (Redis token bucket), audit log, PII masking, log redaction, dependency scanning | Defence in depth |
 | 42 | Credits and billing | Append-only credit ledger, per-run debit, AI pauses at zero | Usage metering |
 | 43 | Postmortem | Break something on purpose, fix it, write a blameless postmortem | The best interview story you'll have |
 
 ## 10. Stage F — Real channels (optional)
 
-Telegram (easiest: free, no review) and/or Instagram as new `ChannelAdapter`s, plus a Cloudflare tunnel for a public webhook URL. If Simgram was built faithfully, this is mostly a new adapter.
+Telegram (easiest: free, no review) and/or Instagram as new `ChannelAdapter`s, plus a Cloudflare tunnel for a public webhook URL. If RahulCoolGram was built faithfully, this is mostly a new adapter.
 
 ---
 
@@ -411,7 +411,7 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 
 ## 12. Deliberate differences from the blueprint
 
-- **Simgram instead of real channels** until Stage F.
+- **RahulCoolGram instead of real channels** until Stage F.
 - **AI before login and multi-tenancy.** One hardcoded org until step 35, but `org_id` is on every table from step 3.
 - **No queue or Redis until step 14**, after you've seen the naive way break.
 - **Polling before WebSocket.**
@@ -433,7 +433,7 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 - [ ] 5 Seed data
 - [ ] 6 Dashboard reads the API
 - [ ] 7 Staff can reply
-- [ ] 8 Simgram v1
+- [ ] 8 RahulCoolGram v1
 - [ ] 9 Webhooks done right
 - [ ] 10 Outbound messages
 - [ ] 11 Live updates

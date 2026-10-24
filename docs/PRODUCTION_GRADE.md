@@ -146,7 +146,7 @@ The key idea: **instrument once with OpenTelemetry (an open standard), and send 
 - **On day one: no.** Steps 1–15 only need structured logs and health checks.
 - **From step 16: yes, a small version.** Once a message crosses API → queue → worker → LLM, you can't debug from logs alone. One `otel-lgtm` container is enough.
 - **From step 20: Langfuse.** Once runs have many steps and prompts change often.
-- **At step 37: real monitoring.** SLOs, alerts and runbooks, once there's a deployed system with users (even if the users are you and Simgram).
+- **At step 37: real monitoring.** SLOs, alerts and runbooks, once there's a deployed system with users (even if the users are you and RahulCoolGram).
 
 ---
 
