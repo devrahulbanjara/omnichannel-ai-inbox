@@ -22,7 +22,7 @@ Locked choices are marked 🔒. The rest are proposals until decided.
 
 | Layer | Choice |
 |---|---|
-| Backend API 🔒 | Python 3.12, **FastAPI**, Pydantic v2 |
+| Backend API 🔒 | Python 3.14, **FastAPI**, Pydantic v2 |
 | ORM / migrations 🔒 | SQLAlchemy 2 (async) + Alembic |
 | Database 🔒 | **PostgreSQL 16 + pgvector** (row-level security for tenancy) |
 | Background jobs 🔒 | **Procrastinate** (async, Postgres-backed; retries, scheduling, queueing locks) |

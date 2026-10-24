@@ -138,7 +138,7 @@ On our side, Simgram is just one implementation of `ChannelAdapter` (`verify`, `
 
 - **Goal:** a running Python web server.
 - **Why now:** everything else hangs off it.
-- **Build:** `apps/api` created with `uv` (Python 3.12); FastAPI app with `GET /health`; settings read from environment variables with `pydantic-settings` (`.env.example` committed, `.env` git-ignored); `ruff` for lint + format; one `pytest` test; a GitHub Actions workflow running lint + tests on every PR.
+- **Build:** `apps/api` created with `uv` (Python 3.14); FastAPI app with `GET /health`; settings read from environment variables with `pydantic-settings` (`.env.example` committed, `.env` git-ignored); `ruff` for lint + format; one `pytest` test; a GitHub Actions workflow running lint + tests on every PR.
 - **Learn:** HTTP request/response, what a web framework does, ASGI and uvicorn, environment variables (§1, §6, §10). The *twelve-factor* rule: config lives in the environment, not in code.
 - **Production bar:** CI from the very first endpoint; no secret ever in git.
 - **Done when:** `curl localhost:8000/health` → `{"status":"ok"}`; `/docs` shows the endpoint; CI is green on the PR.
