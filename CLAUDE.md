@@ -27,6 +27,7 @@ This is the owner's **flagship learning + portfolio project**. It is built **inc
 ## Directory map
 
 ```
+README.md                 public intro: what the project is, what RahulCoolGram simulates, how to run
 CLAUDE.md                 this file
 .mcp.json                 MCP servers for this repo (Playwright for browser checks)
 .claude/settings.local.json  Claude Code settings (tracked on purpose)
@@ -35,6 +36,7 @@ docs/
   ROADMAP.md              step-by-step build plan + progress checklist. The "route". Read first.
   PRODUCTION_GRADE.md     what industry-grade means, tool choices (OTel, Grafana, Langfuse; not LangSmith), OWASP LLM risks
   learn.md                concept map and study order (§ numbers are referenced from ROADMAP)
+  assets/rahulcoolgram.png  RahulCoolGram logo (original; the simulator keeps its own web-sized copies)
 apps/
   api/                    FastAPI backend (Python 3.14, uv)
     main.py               app entrypoint (`main:app`, set in pyproject [tool.fastapi])
