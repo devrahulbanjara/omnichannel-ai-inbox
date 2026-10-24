@@ -50,7 +50,7 @@ apps/
     src/lib/mock-data.ts  fixture data; to be replaced by API calls (ROADMAP step 6)
     src/lib/channels.ts   channel labels, NPR formatter, initials
     src/lib/tones.ts      status → Tag tone mappings
-  simulator/              "RahulCoolGram": simple Instagram clone (customer chat UI + small REST API). In progress.
+  simulator/              "RahulCoolGram": simple Instagram clone (customer chat UI + small REST API). main.py routes · db.py SQLite · settings.py env · static/ UI · tests/
 ```
 
 Planned (don't create early): `apps/worker`, `packages/*`, `evals/`, `infra/`, `docs/adr/`, `docs/JOURNAL.md` — see `ROADMAP.md`.

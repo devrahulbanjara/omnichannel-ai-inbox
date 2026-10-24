@@ -23,7 +23,7 @@ To the inbox backend, RahulCoolGram is just one channel, so a real channel like 
 |---|---|---|
 | `apps/api` | Backend: FastAPI, Python 3.14 | Started |
 | `apps/web` | Staff dashboard: Next.js | UI on mock data |
-| `apps/simulator` | RahulCoolGram simulator ([README](apps/simulator/README.md)) | In progress |
+| `apps/simulator` | RahulCoolGram, the Instagram clone ([README](apps/simulator/README.md)) | Working |
 | `docs/` | Blueprint, roadmap, production-grade guide, learning map | — |
 
 ## Run it
