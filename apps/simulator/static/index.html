@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>RahulCoolGram</title>
+  <link rel="icon" href="/static/brand/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/static/brand/logo-64.png">
+  <link rel="apple-touch-icon" href="/static/brand/apple-touch-icon.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="phone">
+    <!-- Inbox: list of chats -->
+    <section class="screen" id="inbox-screen">
+      <header class="topbar">
+        <button class="account-switch" id="account-switch" aria-label="Switch account">
+          <img class="brand-logo" src="/static/brand/logo-64.png" alt="RahulCoolGram">
+          <span id="my-username"></span>
+          <span class="icon icon-sm" data-icon="chevronDown"></span>
+        </button>
+        <div class="topbar-actions">
+          <button class="icon-btn" aria-label="Video chat"><span class="icon" data-icon="video"></span></button>
+          <button class="icon-btn" aria-label="New message"><span class="icon" data-icon="edit"></span></button>
+        </div>
+      </header>
+
+      <div class="scroll">
+        <label class="search">
+          <span class="icon icon-sm" data-icon="search"></span>
+          <input placeholder="Search" aria-label="Search">
+        </label>
+
+        <div class="notes">
+          <div class="note">
+            <div class="note-bubble">Share a note</div>
+            <img id="my-note-avatar" alt="">
+            <span>Your note</span>
+          </div>
+        </div>
+
+        <div class="list-head">
+          <strong>Messages</strong>
+          <span class="muted">Requests</span>
+        </div>
+        <ul class="chat-list" id="chat-list"></ul>
+      </div>
+
+      <nav class="bottom-nav" aria-label="Main">
+        <button class="icon-btn" aria-label="Home"><span class="icon" data-icon="home"></span></button>
+        <button class="icon-btn" aria-label="Search"><span class="icon" data-icon="search"></span></button>
+        <button class="icon-btn" aria-label="Reels"><span class="icon" data-icon="reels"></span></button>
+        <button class="icon-btn" aria-label="Shop"><span class="icon" data-icon="bag"></span></button>
+        <button class="icon-btn nav-profile" id="nav-profile" aria-label="Profile"><img id="nav-avatar" alt=""></button>
+      </nav>
+    </section>
+
+    <!-- Thread: one conversation with the store -->
+    <section class="screen hidden" id="thread-screen">
+      <header class="topbar thread-bar">
+        <button class="icon-btn" id="back" aria-label="Back"><span class="icon" data-icon="chevronLeft"></span></button>
+        <div class="thread-who">
+          <span class="ring ring-sm"><img src="/static/brand/logo-128.png" alt=""></span>
+          <div>
+            <strong id="store-name"></strong>
+            <small id="store-username"></small>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" aria-label="Audio call"><span class="icon" data-icon="phone"></span></button>
+          <button class="icon-btn" aria-label="Video call"><span class="icon" data-icon="video"></span></button>
+          <button class="icon-btn" aria-label="Info"><span class="icon" data-icon="info"></span></button>
+        </div>
+      </header>
+
+      <div class="scroll messages" id="messages"></div>
+
+      <form class="composer" id="composer" autocomplete="off">
+        <button type="button" class="camera-btn" aria-label="Camera"><span class="icon icon-sm" data-icon="camera"></span></button>
+        <input id="text" placeholder="Message…" maxlength="1000" aria-label="Message">
+        <div class="composer-icons" id="composer-icons">
+          <button type="button" class="icon-btn" aria-label="Voice message"><span class="icon" data-icon="mic"></span></button>
+          <button type="button" class="icon-btn" aria-label="Photo"><span class="icon" data-icon="image"></span></button>
+          <button type="button" class="icon-btn" aria-label="Sticker"><span class="icon" data-icon="smile"></span></button>
+        </div>
+        <button class="send-btn hidden" id="send">Send</button>
+      </form>
+    </section>
+
+    <!-- Account switcher sheet -->
+    <div class="sheet-backdrop hidden" id="sheet-backdrop">
+      <div class="sheet" role="dialog" aria-label="Switch account">
+        <div class="sheet-grip"></div>
+        <ul class="account-list" id="account-list"></ul>
+      </div>
+    </div>
+
+    <div class="toast hidden" id="toast"></div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
