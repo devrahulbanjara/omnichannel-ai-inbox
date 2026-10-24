@@ -40,8 +40,8 @@ A step is finished only when **all** of these are true:
 
 ```
   RahulCoolGram (fake Instagram)                  Dashboard (Next.js)
-  customer phone UI + fake Meta API               inbox · conversation · AI inspector
-        │  signed webhooks ▲ send API                   ▲ REST        ▲ WebSocket
+  customer phone UI + small REST API              inbox · conversation · AI inspector
+        │  webhook         ▲ reply API                  ▲ REST        ▲ WebSocket
         ▼                  │                             │             │
   ┌───────────────────────────────────────────────────────────────────────┐
   │ API (FastAPI): webhook ingress · REST · WebSocket                      │
@@ -63,7 +63,7 @@ A step is finished only when **all** of these are true:
 ```
   RahulCoolGram ──webhook──▶ API ──▶ Postgres ◀── API ◀──REST── Dashboard
      ▲                  │
-     └────send API──────┘
+     └───reply API──────┘
 ```
 
 No AI, no queue, no Redis, no login. Just a real inbox with a fake customer. Every later stage adds **one** layer.
@@ -82,33 +82,31 @@ No AI, no queue, no Redis, no login. Just a real inbox with a fake customer. Eve
 
 ---
 
-## 3. RahulCoolGram — our fake Instagram
+## 3. RahulCoolGram — our Instagram clone
 
-Real Instagram needs a Meta app, review, a business account and a public URL. That's a lot of setup and teaches little. Instead we build **RahulCoolGram** (`apps/simulator`), which plays two roles:
+Real Instagram needs a Meta app, app review, a business account and a public URL. That's a lot of setup and teaches little. Instead we built **RahulCoolGram** (`apps/simulator`): a small Instagram-DM clone where you play the customer.
 
-1. **The customer's phone.** An Instagram-DM-like screen: pick a customer persona, open a chat with a business account (e.g. Himal Luggage Co.), send messages, see replies, tap buttons on product cards.
-2. **The platform (fake Meta).** It talks to our backend the way real Instagram does, so our backend code is the same code that would talk to Meta.
+It is deliberately **simple**: a plain FastAPI app with a few REST endpoints, SQLite, and a phone-style chat page that polls for new messages. It does **not** copy Meta's API.
 
-### What RahulCoolGram copies from the real Instagram platform
+### How it links to our API
 
-These are the real Meta behaviours (from Meta's Instagram webhook docs). RahulCoolGram copies each one, so every lesson transfers.
+```
+ Customer types in RahulCoolGram
+   → RahulCoolGram saves it, then POST {OMNICHANNEL_WEBHOOK_URL}         (our API receives it)
+        body: {"message_id", "customer": {"id","name","username"}, "text", "sent_at"}
+        header: X-RahulCoolGram-Key: <shared key>
 
-| Real Meta behaviour | RahulCoolGram | Step |
-|---|---|---|
-| **Verification handshake.** Meta sends `GET ?hub.mode=subscribe&hub.verify_token=…&hub.challenge=…`. Your server checks the token and returns the challenge. | Same, when you "subscribe" a webhook URL | 9 |
-| **Signed webhooks.** Every `POST` carries `X-Hub-Signature-256: sha256=<HMAC-SHA256 of the raw body with the app secret>`. Verify on the **raw bytes**, before parsing JSON. | Same | 9 |
-| **Payload shape.** `{"object":"instagram","entry":[{"id":<account>,"time":…,"messaging":[{"sender":{"id":<customer>},"recipient":{"id":<account>},"timestamp":…,"message":{"mid":…,"text":…}}]}]}` | Same | 9 |
-| **Retries.** If you don't answer `200`, Meta retries immediately, then less and less often for up to **36 hours**, then drops the event. | Same idea, compressed to ~2 minutes | 9 |
-| **Duplicates and batching.** Events can arrive more than once; up to 1000 can arrive in one request. Your server must deduplicate. | "Send twice" switch; multi-event batches | 9 |
-| **Fast acknowledgement.** Meta recommends returning `200` *before* doing slow work. | Slow / timeout mode | 13–14 |
-| **Send API.** `POST /{account-id}/messages` with an access token returns a message id. | Same | 10 |
-| **Echoes.** Messages your own account sends come back as webhooks with `is_echo: true`. | Same | 10 |
-| **Read receipts.** `read: {mid}` events. | Same | 15 |
-| **Postbacks.** Button taps arrive as `postback: {mid, title, payload}`. | Same | 25 |
-| **Account linking.** Business connects its Instagram via an OAuth flow → access token. | "Connect RahulCoolGram account" | 34 |
-| — | **Chaos switches:** duplicate, delay, drop, 500 on send | 9, 40 |
+ Staff or AI replies in our system
+   → our API calls POST http://localhost:8100/api/store/messages        (RahulCoolGram shows it)
+        body: {"customer_id", "text"}   header: X-RahulCoolGram-Key: <shared key>
+        returns: {"message_id"}
+```
 
-On our side, RahulCoolGram is just one implementation of `ChannelAdapter` (`verify`, `parse`, `send`, `render`). Real Instagram later is a second implementation of the same interface.
+Both sides use the same shared key. Full endpoint list: `apps/simulator/README.md`.
+
+On our side, RahulCoolGram is one implementation of a `ChannelAdapter`. A real channel (Instagram, Telegram) later is another implementation; real platforms add things like signed webhooks and retries, which we learn about then.
+
+Features are added to RahulCoolGram only when a step needs them (e.g. product cards with buttons in step 26).
 
 ---
 
@@ -198,28 +196,28 @@ On our side, RahulCoolGram is just one implementation of `ChannelAdapter` (`veri
 - **Done when:** a reply is saved and shown; sending the same request twice with the same key creates one row.
 - **Interview:** "How does Stripe stop a double charge when a client retries?"
 
-### Step 8 · RahulCoolGram v1
+### Step 8 · Link RahulCoolGram to the API
 
 - **Goal:** a customer who talks to the store.
-- **Build:** `apps/simulator`: a small FastAPI app with its own SQLite file, serving an Instagram-DM-like page. A customer sends a message → RahulCoolGram `POST`s a simple JSON webhook to our API → API finds-or-creates the contact and conversation and stores the message.
+- **Build:** RahulCoolGram already exists (`apps/simulator`). Add `POST /webhooks/rahulcoolgram` to our API: it receives RahulCoolGram's JSON, finds-or-creates the contact and conversation, and stores the message.
 - **Learn:** webhooks (§1): who calls whom; two services with separate databases.
 - **Done when:** a RahulCoolGram message appears in the dashboard after a refresh.
 - **Interview:** "What's a webhook, and how is it different from polling an API?"
 
 ### Step 9 · Webhooks done right
 
-- **Goal:** ingress that a real platform could call.
-- **Why now:** step 8 trusts anyone and breaks on retries.
-- **Build:** Meta-shaped payloads; `X-Hub-Signature-256` verification on the raw body (constant-time compare); verification handshake; every request stored raw in `webhook_event`; dedupe with `UNIQUE(channel_id, external_id)` + `ON CONFLICT DO NOTHING`; RahulCoolGram retries with backoff, has a "send twice" switch, and can batch several events in one request.
-- **Learn:** HMAC, replay and spoofing, idempotent consumers, at-least-once delivery (§4, §7).
-- **Production bar:** reject before parsing; keep the raw payload for debugging and replay; a duplicate is a no-op, not an error.
-- **Done when:** wrong signature → 401; duplicate webhook → one message; batch of 3 → 3 messages.
-- **Interview:** "How do you verify a webhook really came from Meta?" · "Exactly-once vs at-least-once delivery?" · "Why store the raw payload?"
+- **Goal:** the webhook can't be faked and can't create duplicates.
+- **Why now:** step 8 trusts anyone, and the same message sent twice is saved twice.
+- **Build:** reject requests without the right `X-RahulCoolGram-Key` (401); store every request raw in `webhook_event`; dedupe with `UNIQUE(channel_id, external_id)` + `ON CONFLICT DO NOTHING` using RahulCoolGram's `message_id`. Test a duplicate by sending the same request twice with curl.
+- **Learn:** shared-secret auth vs HMAC signatures (what real platforms use, and why), idempotent consumers, at-least-once delivery (§4, §7).
+- **Production bar:** keep the raw payload for debugging and replay; a duplicate is a no-op, not an error.
+- **Done when:** wrong key → 401; the same webhook twice → one message.
+- **Interview:** "How do you verify a webhook came from the real sender?" · "Exactly-once vs at-least-once delivery?" · "Why store the raw payload?"
 
 ### Step 10 · Outbound messages
 
 - **Goal:** staff replies reach the customer.
-- **Build:** a `ChannelAdapter` interface with a RahulCoolGram implementation; staff reply → adapter calls RahulCoolGram's send API (`httpx`, explicit timeouts) → store the returned external id → ignore the matching `is_echo` webhook; message `delivery_status` (`queued → sent → failed`).
+- **Build:** a `ChannelAdapter` interface with a RahulCoolGram implementation; staff reply → adapter calls RahulCoolGram's `POST /api/store/messages` (`httpx`, explicit timeout) → store the returned `message_id`; message `delivery_status` (`queued → sent → failed`).
 - **Learn:** HTTP clients, timeouts, error classes (retry 5xx/429, don't retry 4xx), adapters/ports (§6).
 - **Production bar:** every outbound call has a timeout; failures are visible in the UI, never silent.
 - **Done when:** a full conversation works both ways; stopping RahulCoolGram shows a "failed" badge instead of an error page.
@@ -252,7 +250,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 ### Step 13 · Auto-reply, the naive way
 
 - **Build:** when a conversation is assigned to AI, call the LLM **inside the webhook request** and send the reply.
-- **Why:** to *see* why the blueprint forbids this. Turn on RahulCoolGram's slow mode: the webhook times out, RahulCoolGram retries, the customer gets **duplicate replies**.
+- **Why:** to *see* why the blueprint forbids this. The LLM takes seconds, so RahulCoolGram's webhook call waits and times out. Real platforms retry on timeout; replay the same webhook with curl to see the customer get **duplicate replies**.
 - **Done when:** you can reproduce the duplicate and explain it. Write it in the journal — it's an interview story.
 - **Interview:** "Why must webhook handlers return fast?"
 
@@ -261,12 +259,12 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 - **Build:** Procrastinate worker. The webhook now saves the message **and** enqueues `run_agent` **in one transaction**, then returns 200. The worker runs the agent and sends. Because the worker is a separate process, it publishes `message.created` to **Redis pub/sub**, and the API forwards it to WebSockets.
 - **Learn:** queue vs pub/sub, workers, retries, transactional enqueue / outbox (§4).
 - **Production bar:** a crash between "save" and "enqueue" is impossible (same transaction); jobs have retry limits.
-- **Done when:** slow mode no longer causes duplicates; killing the worker mid-run and restarting it still produces exactly one reply.
+- **Done when:** the webhook answers in milliseconds even when the LLM is slow; a replayed webhook causes no duplicate reply; killing the worker mid-run and restarting it still produces exactly one reply.
 - **Interview:** "Why not FastAPI BackgroundTasks?" · "Queue vs pub/sub — when do you use each?" · "What is the transactional outbox pattern?"
 
 ### Step 15 · Human-like timing
 
-- **Build:** debounce (wait ~3 s after the last customer message, so split messages get one answer); one agent run per conversation at a time (Procrastinate queueing lock + execution lock); typing indicator and read receipts in RahulCoolGram.
+- **Build:** debounce (wait ~3 s after the last customer message, so split messages get one answer); one agent run per conversation at a time (Procrastinate queueing lock + execution lock); a typing indicator in RahulCoolGram.
 - **Learn:** debounce, locks, race conditions. Known pitfall: a worker that dies can leave a lock held, so add a periodic task that frees stalled jobs.
 - **Done when:** sending "hi" / "do you have" / "black bags?" quickly gets **one** reply; the typing dots show.
 - **Interview:** "How do you prevent two workers replying to the same conversation?"
@@ -349,7 +347,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 | # | Step | Build | Key lesson |
 |---|---|---|---|
 | 25 | Catalog | Products, variants, inventory, store API, seeded stores (luggage, clothing) | Separate module (`commerce`) that never imports AI code |
-| 26 | Product cards + postbacks | Agent sends card carousels; RahulCoolGram renders them; **Buy now** / **Details** taps arrive as postbacks handled by code | Deterministic handling of structured input |
+| 26 | Product cards + postbacks | Agent sends product cards; RahulCoolGram learns to show them; **Buy now** / **Details** taps come back as button events handled by code | Deterministic handling of structured input |
 | 27 | Cart + sales state machine | `browsing → product_chosen → collecting_details → choosing_payment → awaiting_confirmation → order_placed`; tools allowed per state are enforced by code | "The LLM chooses, code decides" |
 | 28 | Zones + quote | Delivery zones and fees; immutable quote snapshot; any change invalidates it | Never trust model arithmetic |
 | 29 | Create order | One transaction: lock variants, check stock and price, next order number (row lock), insert, consume quote; idempotent on `quote_id` | Double "yes" = one order |
@@ -366,7 +364,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 |---|---|---|---|
 | 32 | Login | Users, argon2id hashing, httpOnly session cookies, CSRF protection | Authentication done right |
 | 33 | Roles | owner / admin / agent checks in services | Authorization (RBAC) |
-| 34 | Connect RahulCoolGram account | OAuth-style flow: authorize → code → token; token **encrypted at rest** | Exactly how real Instagram linking works |
+| 34 | Connect a channel | A store adds its RahulCoolGram connection (URL + key) in settings; the key is **encrypted at rest** | Storing third-party credentials safely |
 | 35 | Second store + RLS | Postgres row-level security with `SET LOCAL` per transaction, `FORCE ROW LEVEL SECURITY`, `WITH CHECK`, app role without `BYPASSRLS`; a test that org A can never read org B, including across pooled connections | Multi-tenancy as a database guarantee |
 | 36 | Team tools | Notes, quick replies, tickets with numbering per store | Real product features |
 
@@ -379,14 +377,14 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 | 37 | SLOs and alerts | Define SLOs (e.g. 99% of AI replies sent within 15 s), dashboards for the golden signals + queue depth + LLM cost, alerts on SLO burn, a **runbook** per alert | Monitoring that pages for user pain, not CPU |
 | 38 | Evals in CI | Eval suite runs on every PR that touches prompts/tools; LLM-judge rubrics; scores tracked over time | AI regressions caught before merge |
 | 39 | RAG | Gemini embeddings + pgvector; hybrid (keyword + vector) search; retrieval metrics (recall@k) | When and why to add RAG |
-| 40 | Load and chaos | k6 load test; RahulCoolGram chaos mode (duplicates, delays, 500s); kill workers mid-run | Prove: no lost messages, no duplicate orders |
+| 40 | Load and chaos | k6 load test; replay duplicate webhooks; stop RahulCoolGram during sends; kill workers mid-run | Prove: no lost messages, no duplicate orders |
 | 41 | Security hardening | Rate limits (Redis token bucket), audit log, PII masking, log redaction, dependency scanning | Defence in depth |
 | 42 | Credits and billing | Append-only credit ledger, per-run debit, AI pauses at zero | Usage metering |
 | 43 | Postmortem | Break something on purpose, fix it, write a blameless postmortem | The best interview story you'll have |
 
 ## 10. Stage F — Real channels (optional)
 
-Telegram (easiest: free, no review) and/or Instagram as new `ChannelAdapter`s, plus a Cloudflare tunnel for a public webhook URL. If RahulCoolGram was built faithfully, this is mostly a new adapter.
+Telegram (easiest: free, no review) and/or Instagram as new `ChannelAdapter`s, plus a Cloudflare tunnel for a public webhook URL. Real platforms add signed webhooks, retries and OAuth account linking; those get added in the new adapter, the rest of the system stays the same.
 
 ---
 

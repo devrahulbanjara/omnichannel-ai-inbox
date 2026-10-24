@@ -8,12 +8,12 @@ The agent works within strict rules: it can only act through typed tools, and pr
 
 <img src="docs/assets/rahulcoolgram.png" alt="RahulCoolGram logo" width="180" align="right">
 
-Real stores get customer messages from Instagram, Messenger, WhatsApp and similar apps. Connecting to those platforms needs app reviews, business accounts and a public server, which slows down learning. So this project ships its own social app, **RahulCoolGram**, a fake Instagram that plays both sides:
+Real stores get customer messages from Instagram, Messenger, WhatsApp and similar apps. Connecting to those platforms needs app reviews, business accounts and a public server, which slows down learning. So this project ships its own social app, **RahulCoolGram**, a simple Instagram clone that plays both sides:
 
-- **The customer's phone.** A DM-style chat screen: pick a customer, message a store, see replies, tap product cards and buttons.
-- **The platform.** A fake version of Meta's messaging API that behaves like the real one: signed webhooks, the URL verification handshake, retries, duplicate and batched deliveries, a Send API with access tokens, read receipts, button postbacks, and a "connect your account" flow.
+- **The customer's phone.** An Instagram-style DM screen: pick a customer, message the store, see replies live.
+- **The platform.** A small REST API. Every customer message is sent to the inbox backend as a webhook, and the backend replies by calling RahulCoolGram's API. Both sides share a key.
 
-The inbox backend talks to RahulCoolGram exactly as it would talk to Instagram, so a real channel later is just a new adapter. RahulCoolGram can also misbehave on purpose (duplicates, delays, failures) to prove the backend never loses or duplicates a message.
+To the inbox backend, RahulCoolGram is just one channel, so a real channel like Instagram or Telegram later is a new adapter, not a redesign.
 
 <br clear="right">
 

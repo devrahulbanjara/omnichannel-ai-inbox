@@ -42,7 +42,7 @@ Templates. Replace the brackets with real facts **only once they're true**.
 ## 3. Resume bullets (templates; fill with measured numbers only)
 
 - Built a multi-tenant AI customer-messaging platform (FastAPI, PostgreSQL, Next.js) where an LLM agent answers and places orders through [N] typed tools; prices and totals always come from the database, never the model.
-- Designed idempotent webhook ingestion (HMAC verification, dedupe, transactional job enqueue); chaos tests with duplicated and failed deliveries produced **0 duplicate orders and 0 lost messages** over [N] runs.
+- Designed idempotent webhook ingestion (authenticated webhooks, dedupe, transactional job enqueue); chaos tests with duplicated and failed deliveries produced **0 duplicate orders and 0 lost messages** over [N] runs.
 - Built an LLM eval suite of [N] scripted conversations (including prompt-injection attacks) running in CI; raised task success from [X]% to [Y]% across prompt iterations.
 - Instrumented end-to-end tracing (OpenTelemetry, Grafana, Langfuse) from webhook to reply; p95 reply latency [X] s at [N] webhooks/min (k6).
 
@@ -250,7 +250,7 @@ Weak spots get logged in `JOURNAL.md` and come back in later mocks.
 - Never claim a scale, metric or feature you haven't built and measured.
 - It's fine — good, even — to say "I haven't done X; here's how I would approach it."
 - Know every line you wrote. If AI helped write code, you must still be able to explain it and defend it.
-- RahulCoolGram is a strength, not a weakness: "I built a platform simulator with the same contract as Meta's API so I could test retries, duplicates and failures on purpose."
+- RahulCoolGram is a strength, not a weakness: "I built a small Instagram clone so I could drive real conversations end to end, and replay duplicate or failed webhooks on purpose."
 
 ---
 
