@@ -1,0 +1,23 @@
+name: simulator
+
+on:
+  push:
+    paths: ["apps/simulator/**", ".github/workflows/simulator.yml"]
+  pull_request:
+    paths: ["apps/simulator/**", ".github/workflows/simulator.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/simulator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.14"
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
