@@ -6,6 +6,8 @@ import uuid
 from fastapi import Request, Response
 from loguru import logger
 
+from app.core.errors import internal_error_response
+
 HEADER = "X-Request-ID"
 
 
@@ -20,7 +22,7 @@ async def request_id_middleware(request: Request, call_next) -> Response:
             response = await call_next(request)
         except Exception:
             logger.exception("{} {} crashed", request.method, request.url.path)
-            raise
+            response = internal_error_response()
         duration_ms = (time.perf_counter() - start) * 1000
         logger.info(
             "{} {} → {} ({:.1f} ms)",

@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.core.errors import add_error_handlers
+from app.main import create_app
 
 
 def test_unknown_conversation_has_error_shape(client):
@@ -45,3 +46,17 @@ def test_unexpected_error_hides_internal_details():
     assert response.json() == {
         "error": {"code": "internal_error", "message": "Something went wrong on our side"}
     }
+
+
+def test_unexpected_error_still_has_a_request_id():
+    app = create_app()
+
+    @app.get("/boom")
+    def boom():
+        raise RuntimeError("bug")
+
+    response = TestClient(app, raise_server_exceptions=False).get("/boom")
+
+    assert response.status_code == 500
+    assert response.json()["error"]["code"] == "internal_error"
+    assert len(response.headers["X-Request-ID"]) == 32

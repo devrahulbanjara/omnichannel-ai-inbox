@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.core.database import get_session
-from app.main import app
+from app.main import create_app
 
 
 def test_live_returns_ok(client):
@@ -22,10 +22,8 @@ def test_ready_returns_503_when_database_is_down():
         async def execute(self, statement):
             raise ConnectionError("database is down")
 
+    app = create_app()
     app.dependency_overrides[get_session] = lambda: BrokenSession()
-    try:
-        response = TestClient(app).get("/health/ready")
-    finally:
-        app.dependency_overrides.clear()
+    response = TestClient(app).get("/health/ready")
 
     assert response.status_code == 503

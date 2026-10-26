@@ -1,4 +1,4 @@
-"""Exception handlers. Every error response has the shape {"error": {"code", "message"}}."""
+"""Exception handlers. Every error response is an ErrorResponse: {"error": {"code", "message"}}."""
 
 from http import HTTPStatus
 
@@ -8,13 +8,14 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from app.core.exceptions import AppError
+from app.schemas.error import ErrorBody, ErrorResponse, FieldError
 
 
-def error_response(status: int, code: str, message: str, **extra) -> JSONResponse:
-    return JSONResponse(
-        status_code=status,
-        content={"error": {"code": code, "message": message, **extra}},
-    )
+def error_response(
+    status: int, code: str, message: str, details: list[FieldError] | None = None
+) -> JSONResponse:
+    body = ErrorResponse(error=ErrorBody(code=code, message=message, details=details))
+    return JSONResponse(status_code=status, content=body.model_dump(exclude_none=True))
 
 
 async def handle_app_error(request: Request, exc: AppError) -> JSONResponse:
@@ -28,15 +29,19 @@ async def handle_http_error(request: Request, exc: HTTPException) -> JSONRespons
 
 async def handle_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
     details = [
-        {"field": ".".join(str(part) for part in err["loc"]), "message": err["msg"]}
+        FieldError(field=".".join(str(part) for part in err["loc"]), message=err["msg"])
         for err in exc.errors()
     ]
     return error_response(422, "validation_error", "The request is not valid", details=details)
 
 
-async def handle_unexpected_error(request: Request, exc: Exception) -> JSONResponse:
+def internal_error_response() -> JSONResponse:
     """Generic 500 response. Exception details are logged, never returned."""
     return error_response(500, "internal_error", "Something went wrong on our side")
+
+
+async def handle_unexpected_error(request: Request, exc: Exception) -> JSONResponse:
+    return internal_error_response()
 
 
 def add_error_handlers(app: FastAPI) -> None:
