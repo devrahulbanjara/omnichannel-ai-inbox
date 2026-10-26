@@ -12,13 +12,13 @@ def logs():
 
 
 def test_response_has_a_request_id(client):
-    response = client.get("/health")
+    response = client.get("/health/live")
 
     assert len(response.headers["X-Request-ID"]) == 32
 
 
 def test_incoming_request_id_is_reused(client):
-    response = client.get("/health", headers={"X-Request-ID": "trace-from-rahulcoolgram"})
+    response = client.get("/health/live", headers={"X-Request-ID": "trace-from-rahulcoolgram"})
 
     assert response.headers["X-Request-ID"] == "trace-from-rahulcoolgram"
 

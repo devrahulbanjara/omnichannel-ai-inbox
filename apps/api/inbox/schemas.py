@@ -1,13 +1,16 @@
 """The shapes of data our API sends and receives (Pydantic models)."""
 
+import uuid
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class Conversation(BaseModel):
-    id: str
+class ConversationRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)  # can be built from a database row
+
+    id: uuid.UUID
     contact_name: Annotated[str, Field(description="The customer's display name on their channel")]
     channel: Annotated[
         str, Field(description="The app the customer wrote from: rahulcoolgram, whatsapp")
@@ -19,9 +22,13 @@ class Conversation(BaseModel):
     ]
 
 
-class Message(BaseModel):
-    id: str
-    conversation_id: Annotated[str, Field(description="The conversation this message belongs to")]
+class MessageRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    conversation_id: Annotated[
+        uuid.UUID, Field(description="The conversation this message belongs to")
+    ]
     direction: Annotated[
         Literal["in", "out"],
         Field(description="in = from the customer, out = to the customer"),

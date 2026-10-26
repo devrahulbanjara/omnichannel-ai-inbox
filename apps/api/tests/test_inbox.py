@@ -1,6 +1,8 @@
-"""These tests describe what the inbox endpoints must do. Make them pass."""
+"""What the inbox endpoints must do."""
 
-MISSING_ID = "does-not-exist"
+import uuid
+
+MISSING_ID = str(uuid.uuid4())  # a valid id that no conversation has
 
 
 def first_conversation_id(client) -> str:
@@ -82,3 +84,19 @@ def test_client_cannot_choose_the_sender(client):
     assert response.status_code == 201
     assert response.json()["sender_type"] == "staff"
     assert response.json()["direction"] == "out"
+
+
+def test_malformed_conversation_id_is_rejected_with_422(client):
+    response = client.get("/conversations/not-a-uuid/messages")
+
+    assert response.status_code == 422
+
+
+def test_reply_is_still_there_in_a_new_session(client):
+    """It's really in Postgres: a fresh request (new DB session) still sees it."""
+    conversation_id = first_conversation_id(client)
+    client.post(f"/conversations/{conversation_id}/messages", json={"text": "Saved?"})
+
+    texts = [m["text"] for m in client.get(f"/conversations/{conversation_id}/messages").json()]
+
+    assert texts[-1] == "Saved?"

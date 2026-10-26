@@ -1,45 +1,41 @@
-"""HTTP endpoints for conversations and messages."""
+"""HTTP endpoints for conversations and messages. Thin: parse the request, call the service."""
+
+import uuid
 
 from fastapi import APIRouter, HTTPException
 
-from inbox import store
-from inbox.schemas import Conversation, Message, MessageCreate
+from core.db import SessionDep
+from inbox import service
+from inbox.models import Conversation
+from inbox.schemas import ConversationRead, MessageCreate, MessageRead
 
 router = APIRouter(prefix="/conversations", tags=["inbox"])
 
 
-def get_conversation_or_404(conversation_id: str) -> Conversation:
-    conversation = store.conversations.get(conversation_id)
+async def get_conversation_or_404(session: SessionDep, conversation_id: uuid.UUID) -> Conversation:
+    conversation = await service.get_conversation(session, conversation_id)
     if conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
     return conversation
 
 
 @router.get("")
-def list_conversations() -> list[Conversation]:
+async def list_conversations(session: SessionDep) -> list[ConversationRead]:
     """All conversations, the most recently active first."""
-    return sorted(store.conversations.values(), key=lambda c: c.last_message_at, reverse=True)
+    return await service.list_conversations(session)
 
 
 @router.get("/{conversation_id}/messages")
-def list_messages(conversation_id: str) -> list[Message]:
+async def list_messages(session: SessionDep, conversation_id: uuid.UUID) -> list[MessageRead]:
     """The messages of one conversation, oldest first."""
-    get_conversation_or_404(conversation_id)
-    return store.messages[conversation_id]
+    await get_conversation_or_404(session, conversation_id)
+    return await service.list_messages(session, conversation_id)
 
 
 @router.post("/{conversation_id}/messages", status_code=201)
-def send_staff_reply(conversation_id: str, body: MessageCreate) -> Message:
+async def send_staff_reply(
+    session: SessionDep, conversation_id: uuid.UUID, body: MessageCreate
+) -> MessageRead:
     """A staff member replies to the customer."""
-    conversation = get_conversation_or_404(conversation_id)
-    message = Message(
-        id=store.new_id(),
-        conversation_id=conversation_id,
-        direction="out",
-        sender_type="staff",
-        text=body.text,
-        created_at=store.now(),
-    )
-    store.messages[conversation_id].append(message)
-    conversation.last_message_at = message.created_at
-    return message
+    conversation = await get_conversation_or_404(session, conversation_id)
+    return await service.add_staff_reply(session, conversation, body.text)

@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -5,7 +7,7 @@ from core.errors import add_error_handlers
 
 
 def test_unknown_conversation_has_error_shape(client):
-    response = client.get("/conversations/does-not-exist/messages")
+    response = client.get(f"/conversations/{uuid.uuid4()}/messages")
 
     assert response.status_code == 404
     assert response.json() == {"error": {"code": "not_found", "message": "Conversation not found"}}
