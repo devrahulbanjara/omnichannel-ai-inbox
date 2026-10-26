@@ -31,4 +31,5 @@ Template:
 - Built: `GET /conversations`, `GET` + `POST /conversations/{id}/messages` on Python dicts; one error shape (`{"error": {"code", "message"}}`); a request id on every request and JSON log lines. 17 tests.
 - Broke / surprised me: `Annotated(...)` instead of `Annotated[...]` (round vs square brackets). A route path repeated the router prefix (`/conversations/conversations/...`). Two 404 tests "passed" before the routes existed, because every unknown URL is a 404.
 - Learned: tests written first act as the spec. The server decides `sender_type` and `direction`, never the client. Renamed `user` → `staff` because "user" was ambiguous. Restarting the server loses all messages: that's why step 3 adds Postgres.
+- Changed: replaced my hand-written stdlib JSON logging (ContextVar + filter + formatter) with loguru: `logger.contextualize(request_id=...)` does the same in a few lines.
 - Next time I would: watch a new test fail for the right reason before trusting it.

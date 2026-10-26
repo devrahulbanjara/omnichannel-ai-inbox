@@ -1,7 +1,14 @@
-import json
-import logging
+import pytest
+from loguru import logger
 
-from core.logs import JsonFormatter, RequestIdFilter, request_id_var
+
+@pytest.fixture
+def logs():
+    """Collect the log records written during a test."""
+    records = []
+    sink_id = logger.add(lambda message: records.append(message.record), level="INFO")
+    yield records
+    logger.remove(sink_id)
 
 
 def test_response_has_a_request_id(client):
@@ -16,25 +23,9 @@ def test_incoming_request_id_is_reused(client):
     assert response.headers["X-Request-ID"] == "trace-from-rahulcoolgram"
 
 
-def test_every_request_is_logged(client, caplog):
-    caplog.set_level(logging.INFO, logger="api.request")
+def test_every_request_is_logged_with_its_id(client, logs):
+    response = client.get("/conversations")
 
-    client.get("/conversations")
-
-    [record] = [r for r in caplog.records if r.message == "request finished"]
-    assert (record.method, record.path, record.status) == ("GET", "/conversations", 200)
-
-
-def test_log_line_is_json_with_the_request_id():
-    token = request_id_var.set("abc123")
-    try:
-        record = logging.makeLogRecord({"name": "test", "msg": "hello", "levelname": "INFO"})
-        record.order_id = 42
-        RequestIdFilter().filter(record)
-        line = json.loads(JsonFormatter().format(record))
-    finally:
-        request_id_var.reset(token)
-
-    assert line["message"] == "hello"
-    assert line["request_id"] == "abc123"
-    assert line["order_id"] == 42
+    [record] = logs
+    assert record["message"].startswith("GET /conversations → 200")
+    assert record["extra"]["request_id"] == response.headers["X-Request-ID"]

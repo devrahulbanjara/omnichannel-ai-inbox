@@ -6,7 +6,7 @@ from core.logs import configure_logging
 from core.request_id import request_id_middleware
 from inbox.routes import router as inbox_router
 
-configure_logging(settings.log_level)
+configure_logging(settings.log_level, json=settings.log_json)
 
 app = FastAPI(title=settings.app_name)
 add_error_handlers(app)

@@ -50,8 +50,8 @@ apps/
     main.py                  app entrypoint (`main:app`, set in pyproject [tool.fastapi])
     core/config.py           Settings from env vars / .env (pydantic-settings)
     core/errors.py           one error shape for every error: {"error": {"code", "message"}}
-    core/logs.py             JSON log lines on stdout, tagged with the request id
-    core/request_id.py       middleware: request id per request (X-Request-ID header) + one log line per request
+    core/logs.py             loguru setup: readable lines in dev, JSON when LOG_JSON=true. Log with `from loguru import logger`
+    core/request_id.py       middleware: request id per request (X-Request-ID header, added to every log line) + one log line per request
     inbox/                   conversations + messages: schemas.py (Pydantic models) · store.py (in-memory dicts, step 3 replaces) · routes.py (endpoints)
     tests/                   pytest tests
     .env.example             every env var the API reads (copy to .env locally)
@@ -92,7 +92,7 @@ Every tenant table has `org_id` from the start, even while there is only one org
 
 ## Code conventions
 
-- **Python:** FastAPI + Pydantic v2; async SQLAlchemy 2 + Alembic from step 4; type hints everywhere; ruff (line length 100); pytest, with tests named after what they check (`test_health_returns_ok`). Config comes from environment variables: commit `.env.example`, never `.env`.
+- **Python:** FastAPI + Pydantic v2; logging with loguru (never `print`); async SQLAlchemy 2 + Alembic from step 4; type hints everywhere; ruff (line length 100); pytest, with tests named after what they check (`test_health_returns_ok`). Config comes from environment variables: commit `.env.example`, never `.env`.
 - **Web:** Next.js 16 App Router, TypeScript, Tailwind v4, shadcn/ui (Radix), lucide-react. Colors and spacing come from tokens in `globals.css`; never hardcode colors. Reuse `components/ui` primitives before adding new ones. No semicolons, double quotes.
 
 ## Git
