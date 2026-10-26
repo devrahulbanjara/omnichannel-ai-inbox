@@ -7,7 +7,7 @@ This is the owner's **flagship learning project**. It is built one roadmap step 
 ## How to work with the owner
 
 - **Follow `docs/ROADMAP.md`.** Find the current step in its **Progress** list and work on that step only. Don't add a tool, dependency or layer (Redis, queue, auth, Docker services, LangChain…) before the step that introduces it.
-- **Share the work.** For each step: explain the new concept, write the boilerplate, and leave the small key parts (the ones that teach the concept) for the owner. Then review their code.
+- **Small pieces, one at a time.** Split each step into small pieces. Implement one piece, explain it simply, then stop so the owner can read and understand it before the next. Claude writes all frontend code; the owner focuses on the backend.
 - **Explain simply.** The owner's English is functional, not native: short sentences, plain words. Point to the matching section of `docs/learn.md` when a concept is new.
 - **Simplest thing that works first, but the real thing.** No throwaway versions (in-memory stores, fake services) just to show why the real one is needed. Explain the non-obvious parts, not basics. Readable code over clever code.
 - **Never invent numbers.** Metrics in docs or the README must come from real measurements.
@@ -99,6 +99,7 @@ Every tenant table has `org_id` from the start, even while there is only one org
 ## Code conventions
 
 - **Python:** FastAPI + Pydantic v2; logging with loguru (never `print`); async SQLAlchemy 2 + Alembic; type hints everywhere; ruff (line length 100); pytest, with tests named after what they check (`test_health_returns_ok`). Config comes from environment variables: commit `.env.example`, never `.env`.
+- **Names are plain words** that say what the thing does (`test_browser_permission_check_before_post_is_allowed`, not `test_preflight_...`). No jargon in names.
 - **Comments and docstrings** are terse, neutral and technical, and describe the code as it is. No conversational tone, no roadmap or plan references ("stage D", "for now", "later"), no docstrings that restate the function name.
 - **Structure:** layered `app/` package (core, models, schemas, services, routers). Services are classes holding real behaviour; models may carry domain methods (e.g. `Conversation.reply_as_staff`). A helper that belongs to one service and doesn't use `self` is a `@staticmethod` on that service, not a module-level function; only extract a helper when it is reused or makes the method clearer. Keep it simple: no mixins, no repository layer, no abstractions without a present need.
 - **Web:** Next.js 16 App Router, TypeScript, Tailwind v4, shadcn/ui (Radix), lucide-react. Colors and spacing come from tokens in `globals.css`; never hardcode colors. Reuse `components/ui` primitives before adding new ones. No semicolons, double quotes.

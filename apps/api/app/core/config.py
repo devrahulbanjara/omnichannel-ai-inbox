@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_json: bool = False  # one JSON object per log line
     database_url: str = "postgresql+asyncpg://inbox:inbox@localhost:5432/inbox"
+    cors_origins: list[str] = ["http://localhost:3000"]  # browser origins allowed to call the API
 
     model_config = SettingsConfigDict(env_file=".env")
 
