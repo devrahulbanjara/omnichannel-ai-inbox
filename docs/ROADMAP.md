@@ -421,7 +421,7 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 ## Progress
 
 **Stage 0**
-- [ ] 0 Workshop set up
+- [x] 0 Workshop set up (ADRs, journal, PR flow; project board skipped for now)
 
 **Stage A**
 - [ ] 1 API skeleton
@@ -431,7 +431,7 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 - [ ] 5 Seed data
 - [ ] 6 Dashboard reads the API
 - [ ] 7 Staff can reply
-- [ ] 8 RahulCoolGram v1
+- [ ] 8 Link RahulCoolGram to the API
 - [ ] 9 Webhooks done right
 - [ ] 10 Outbound messages
 - [ ] 11 Live updates
