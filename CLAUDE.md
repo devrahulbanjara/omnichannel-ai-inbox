@@ -100,7 +100,7 @@ Every tenant table has `org_id` from the start, even while there is only one org
 
 - **Python:** FastAPI + Pydantic v2; logging with loguru (never `print`); async SQLAlchemy 2 + Alembic; type hints everywhere; ruff (line length 100); pytest, with tests named after what they check (`test_health_returns_ok`). Config comes from environment variables: commit `.env.example`, never `.env`.
 - **Comments and docstrings** are terse, neutral and technical, and describe the code as it is. No conversational tone, no roadmap or plan references ("stage D", "for now", "later"), no docstrings that restate the function name.
-- **Structure:** layered `app/` package (core, models, schemas, services, routers). Services are classes holding real behaviour; models may carry domain methods (e.g. `Conversation.reply_as_staff`). Keep it simple: no mixins, no repository layer, no abstractions without a present need.
+- **Structure:** layered `app/` package (core, models, schemas, services, routers). Services are classes holding real behaviour; models may carry domain methods (e.g. `Conversation.reply_as_staff`). A helper that belongs to one service and doesn't use `self` is a `@staticmethod` on that service, not a module-level function; only extract a helper when it is reused or makes the method clearer. Keep it simple: no mixins, no repository layer, no abstractions without a present need.
 - **Web:** Next.js 16 App Router, TypeScript, Tailwind v4, shadcn/ui (Radix), lucide-react. Colors and spacing come from tokens in `globals.css`; never hardcode colors. Reuse `components/ui` primitives before adding new ones. No semicolons, double quotes.
 
 ## Git
