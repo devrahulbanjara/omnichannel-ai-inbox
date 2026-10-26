@@ -208,7 +208,7 @@ class ChannelAdapter(Protocol):
 | **WhatsApp** | Cloud API webhook: `messages`, `statuses` | `/{phone-number-id}/messages` | Interactive: reply buttons (≤3), list, CTA URL; media | 24h customer-service window; outside it only approved templates | Free test number, ≤5 verified recipients |
 | **Email** | IMAP poll / Gmail push; dev: Mailpit | SMTP / Gmail API | HTML | Thread by `Message-ID`, `In-Reply-To`, `References`; strip quoted replies & signatures | Mailpit in Docker |
 
-**RahulCoolGram (channel simulator).** Until real channels are connected, customers use RahulCoolGram (`apps/simulator`): a simple Instagram clone (customer chat UI + a small REST API). It sends each customer message to our webhook with a shared key, and our API replies through its REST endpoint. It is a normal `ChannelAdapter`, so a real channel later is a new adapter, not a redesign. See `ROADMAP.md`.
+**RahulCoolGram (our own test channel).** Until real channels are connected, customers use RahulCoolGram (`apps/rahulcoolgram`): a simple Instagram clone (customer chat UI + a small REST API). It sends each customer message to our webhook with a shared key, and our API replies through its REST endpoint. It is a normal `ChannelAdapter`, so a real channel later is a new adapter, not a redesign. See `ROADMAP.md`.
 
 **Webhook ingress rule:** verify → store raw in `webhook_event` → enqueue → return `200` within milliseconds. Never call the LLM inside the webhook request.
 

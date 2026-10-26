@@ -84,7 +84,7 @@ No AI, no queue, no Redis, no login. Just a real inbox with a fake customer. Eve
 
 ## 3. RahulCoolGram — our Instagram clone
 
-Real Instagram needs a Meta app, app review, a business account and a public URL. That's a lot of setup and teaches little. Instead we built **RahulCoolGram** (`apps/simulator`): a small Instagram-DM clone where you play the customer.
+Real Instagram needs a Meta app, app review, a business account and a public URL. That's a lot of setup and teaches little. Instead we built **RahulCoolGram** (`apps/rahulcoolgram`): a small Instagram-DM clone where you play the customer.
 
 It is deliberately **simple**: a plain FastAPI app with a few REST endpoints, SQLite, and a phone-style chat page that polls for new messages. It does **not** copy Meta's API.
 
@@ -102,7 +102,7 @@ It is deliberately **simple**: a plain FastAPI app with a few REST endpoints, SQ
         returns: {"message_id"}
 ```
 
-Both sides use the same shared key. Full endpoint list: `apps/simulator/README.md`.
+Both sides use the same shared key. Full endpoint list: `apps/rahulcoolgram/README.md`.
 
 On our side, RahulCoolGram is one implementation of a `ChannelAdapter`. A real channel (Instagram, Telegram) later is another implementation; real platforms add things like signed webhooks and retries, which we learn about then.
 
@@ -120,7 +120,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
   - `README.md`: one paragraph on what the project is, how to run it, link to docs. (It grows every stage.)
   - `docs/adr/0000-template.md` (Michael Nygard format: *Title, Status, Context, Decision, Consequences*), plus the first two ADRs:
     - `0001-stack.md`: FastAPI + Postgres + Procrastinate + own agent loop (copy reasons from the blueprint decision log).
-    - `0002-rahulcoolgram.md`: why a simulator instead of real Instagram.
+    - `0002-rahulcoolgram.md`: why our own channel (RahulCoolGram) instead of real Instagram.
   - `docs/JOURNAL.md`: your learning log.
   - GitHub: a **Project board** with one issue per step; branch protection on `main` (PR required, CI must pass).
   - Commit style: [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
@@ -199,7 +199,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 ### Step 8 · Link RahulCoolGram to the API
 
 - **Goal:** a customer who talks to the store.
-- **Build:** RahulCoolGram already exists (`apps/simulator`). Add `POST /webhooks/rahulcoolgram` to our API: it receives RahulCoolGram's JSON, finds-or-creates the contact and conversation, and stores the message.
+- **Build:** RahulCoolGram already exists (`apps/rahulcoolgram`). Add `POST /webhooks/rahulcoolgram` to our API: it receives RahulCoolGram's JSON, finds-or-creates the contact and conversation, and stores the message.
 - **Learn:** webhooks (§1): who calls whom; two services with separate databases.
 - **Done when:** a RahulCoolGram message appears in the dashboard after a refresh.
 - **Interview:** "What's a webhook, and how is it different from polling an API?"

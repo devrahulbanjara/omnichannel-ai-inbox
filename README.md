@@ -23,7 +23,7 @@ To the inbox backend, RahulCoolGram is just one channel, so a real channel like 
 |---|---|---|
 | `apps/api` | Backend: FastAPI, Python 3.14 | Started |
 | `apps/web` | Staff dashboard: Next.js | UI on mock data |
-| `apps/simulator` | RahulCoolGram, the Instagram clone ([README](apps/simulator/README.md)) | Working |
+| `apps/rahulcoolgram` | RahulCoolGram, the Instagram clone ([README](apps/rahulcoolgram/README.md)) | Working |
 | `docs/` | Blueprint, roadmap, production-grade guide, learning map | — |
 
 ## Run it
@@ -36,7 +36,7 @@ cd apps/api && uv run fastapi dev
 cd apps/web && npm install && npm run dev
 ```
 
-RahulCoolGram's run instructions are in [`apps/simulator/README.md`](apps/simulator/README.md).
+RahulCoolGram's run instructions are in [`apps/rahulcoolgram/README.md`](apps/rahulcoolgram/README.md).
 
 Requirements: [uv](https://docs.astral.sh/uv/) (installs Python 3.14 for you) and Node.js.
 

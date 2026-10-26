@@ -17,7 +17,7 @@ inbox and the AI agent without connecting real Instagram.
 
 ## Run it
 
-From `apps/simulator`:
+From `apps/rahulcoolgram`:
 
 ```bash
 uv sync

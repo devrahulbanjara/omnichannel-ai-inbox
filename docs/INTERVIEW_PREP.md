@@ -25,7 +25,7 @@ Interviewers dig into trade-offs (expect **two or three levels of "why"**), fail
 Templates. Replace the brackets with real facts **only once they're true**.
 
 **30 seconds**
-> I built an omnichannel inbox where an AI agent talks to store customers, answers questions, and places orders, and staff can take over any time. Customers chat through a simulator I built that behaves like Instagram's real API: signed webhooks, retries, duplicates. The interesting part is the agent: it can only act through typed tools, prices and order totals always come from the database, and every run is traced and covered by [N] automated evals in CI.
+> I built an omnichannel inbox where an AI agent talks to store customers, answers questions, and places orders, and staff can take over any time. Customers chat through RahulCoolGram, a simple Instagram clone I built that sends their messages to the inbox as webhooks. The interesting part is the agent: it can only act through typed tools, prices and order totals always come from the database, and every run is traced and covered by [N] automated evals in CI.
 
 **2 minutes:** problem → architecture in one sentence → the hardest problem → one number → what you'd do next.
 

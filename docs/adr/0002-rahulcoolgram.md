@@ -12,7 +12,7 @@ platform. The goal right now is to learn and build the inbox and the AI agent, n
 
 ## Decision
 
-Build our own small Instagram clone, **RahulCoolGram** (`apps/simulator`):
+Build our own small Instagram clone, **RahulCoolGram** (`apps/rahulcoolgram`):
 
 - A customer chat UI that looks like Instagram DMs.
 - A plain FastAPI REST API. Each customer message is POSTed to our webhook with a shared key
@@ -23,7 +23,7 @@ Rejected:
 
 - **Real Instagram / Telegram now:** too much setup before any learning happens.
 - **A faithful copy of Meta's Graph API:** tried it; too complex for what it teaches. Simple REST is enough.
-- **No simulator, just curl:** works for tests, but we can't see a real conversation.
+- **No RahulCoolGram, just curl:** works for tests, but we can't see a real conversation.
 
 ## Consequences
 
