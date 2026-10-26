@@ -8,6 +8,7 @@ export type ApiErrorBody = Schemas["ErrorBody"]
 
 // Inlined into the browser bundle at build time (NEXT_PUBLIC_ prefix).
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+export const LIVE_URL = `${API_URL.replace(/^http/, "ws")}/live`
 
 // Any failed API call. Carries the API's error body and the request ID for log lookups.
 export class ApiError extends Error {

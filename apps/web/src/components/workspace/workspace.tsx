@@ -3,7 +3,7 @@
 import { useState, useSyncExternalStore } from "react"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { ApiError } from "@/lib/api"
-import { useConversations, useMessages, useSendReply } from "@/lib/queries"
+import { useConversations, useLiveUpdates, useMessages, useSendReply } from "@/lib/queries"
 import type { Assignee, Conversation } from "@/lib/types"
 import { AppRail } from "./app-rail"
 import { ContextPanel } from "./context-panel"
@@ -38,6 +38,7 @@ function StatusMessage({ title, detail }: { title: string; detail?: string }) {
 }
 
 export function Workspace() {
+  useLiveUpdates()
   const { data: conversations, error, isPending } = useConversations()
 
   if (isPending) return <StatusMessage title="Loading conversations…" />

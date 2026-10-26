@@ -8,7 +8,7 @@ from app.core.database import engine
 from app.core.errors import add_error_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import request_id_middleware
-from app.routers import conversations, health, organization, webhooks
+from app.routers import conversations, health, live, organization, webhooks
 
 
 @asynccontextmanager
@@ -34,6 +34,7 @@ def create_app() -> FastAPI:
     app.include_router(organization.router)
     app.include_router(conversations.router)
     app.include_router(webhooks.router)
+    app.include_router(live.router)
     return app
 
 

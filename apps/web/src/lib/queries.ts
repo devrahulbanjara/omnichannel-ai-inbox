@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   ApiError,
@@ -6,9 +7,12 @@ import {
   fetchConversations,
   fetchMessages,
   fetchOrganization,
+  LIVE_URL,
   sendReply,
 } from "./api"
 import { conversationFromApi, messageFromApi } from "./from-api"
+
+const RECONNECT_DELAY_MS = 2000
 
 const toConversations = (rows: ApiConversation[]) => rows.map(conversationFromApi)
 const toMessages = (rows: ApiMessage[]) => rows.map(messageFromApi)
@@ -44,4 +48,38 @@ export function useSendReply() {
       queryClient.invalidateQueries({ queryKey: ["conversations"] })
     },
   })
+}
+
+type LiveEvent = { type: "message.created" | "message.updated"; conversation_id: string }
+
+// Keeps a WebSocket open to the API and reloads whatever an event says has changed.
+// Reconnects after a drop and then reloads everything, because events sent while offline are lost.
+export function useLiveUpdates() {
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    let socket: WebSocket | undefined
+    let reconnectTimer: ReturnType<typeof setTimeout> | undefined
+    let stopped = false
+
+    const connect = () => {
+      socket = new WebSocket(LIVE_URL)
+      socket.onopen = () => queryClient.invalidateQueries()
+      socket.onmessage = (message) => {
+        const event: LiveEvent = JSON.parse(message.data)
+        queryClient.invalidateQueries({ queryKey: ["conversations"] })
+        queryClient.invalidateQueries({ queryKey: ["messages", event.conversation_id] })
+      }
+      socket.onclose = () => {
+        if (!stopped) reconnectTimer = setTimeout(connect, RECONNECT_DELAY_MS)
+      }
+    }
+
+    connect()
+    return () => {
+      stopped = true
+      clearTimeout(reconnectTimer)
+      socket?.close()
+    }
+  }, [queryClient])
 }
