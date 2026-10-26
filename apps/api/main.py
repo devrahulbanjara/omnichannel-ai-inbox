@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 
 from core.config import settings
+from core.errors import add_error_handlers
 from inbox.routes import router as inbox_router
 
 app = FastAPI(title=settings.app_name)
+add_error_handlers(app)
 app.include_router(inbox_router)
 
 

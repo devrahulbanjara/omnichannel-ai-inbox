@@ -8,6 +8,13 @@ from inbox.schemas import Conversation, Message, MessageCreate
 router = APIRouter(prefix="/conversations", tags=["inbox"])
 
 
+def get_conversation_or_404(conversation_id: str) -> Conversation:
+    conversation = store.conversations.get(conversation_id)
+    if conversation is None:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return conversation
+
+
 @router.get("")
 def list_conversations() -> list[Conversation]:
     """All conversations, the most recently active first."""
@@ -36,10 +43,3 @@ def send_staff_reply(conversation_id: str, body: MessageCreate) -> Message:
     store.messages[conversation_id].append(message)
     conversation.last_message_at = message.created_at
     return message
-
-
-def get_conversation_or_404(conversation_id: str) -> Conversation:
-    conversation = store.conversations.get(conversation_id)
-    if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
-    return conversation
