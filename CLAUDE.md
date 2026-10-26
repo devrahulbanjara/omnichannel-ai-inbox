@@ -36,6 +36,8 @@ docs/
   ROADMAP.md              step-by-step build plan + progress checklist. The "route". Read first.
   PRODUCTION_GRADE.md     what industry-grade means, tool choices (OTel, Grafana, Langfuse; not LangSmith), OWASP LLM risks
   learn.md                concept map and study order (§ numbers are referenced from ROADMAP)
+  adr/                    Architecture Decision Records (0000-template.md = the format). One file per real decision.
+  JOURNAL.md              short learning log, one entry per roadmap step
   assets/rahulcoolgram.png  RahulCoolGram logo (original; the simulator keeps its own web-sized copies)
 apps/
   api/                    FastAPI backend (Python 3.14, uv)
@@ -53,7 +55,7 @@ apps/
   simulator/              "RahulCoolGram": simple Instagram clone (customer chat UI + small REST API). main.py routes · db.py SQLite · settings.py env · static/ UI · tests/
 ```
 
-Planned (don't create early): `apps/worker`, `packages/*`, `evals/`, `infra/`, `docs/adr/`, `docs/JOURNAL.md` — see `ROADMAP.md`.
+Planned (don't create early): `apps/worker`, `packages/*`, `evals/`, `infra/` — see `ROADMAP.md`.
 
 ## Architecture rules (from BLUEPRINT §1 — apply in every step)
 
