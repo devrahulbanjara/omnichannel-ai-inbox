@@ -45,3 +45,9 @@ Template:
 - Broke / surprised me: nothing in the database changed (`alembic check` stayed clean), but every import path did.
 - Learned: by-layer vs by-domain layouts and when each fits. Mixins and a repository layer were more abstraction than this code needs.
 - Next time I would: pick the package layout before the first endpoint.
+
+## Steps 6–11 · Dashboard on the API, RahulCoolGram linked both ways, live updates — 2026-10-26
+- Built: CORS; `openapi.json` exported from the API and TypeScript types generated from it (a test and web CI fail if either is stale); the error shape documented in the schema; TanStack Query hooks replace `mock-data.ts`, with defaults for fields the API lacks. Channels, contact identities and webhook events tables; `POST /webhooks/rahulcoolgram` with key check and dedupe; staff replies delivered through a `ChannelAdapter` with `queued → sent / failed`; `Idempotency-Key` on replies; WebSocket `/live`; conversations scoped to the current organization; `GET /organization`; richer seed linked to RahulCoolGram's customers (`--reset`). ADR 0004. 43 API tests.
+- Broke / surprised me: RahulCoolGram had been forwarding every message to a route that did not exist (404 in its log). The stale-`openapi.json` test caught the schema change straight away. Unique constraints were named after their first column only, until the naming rule used all columns. Alembic never detects CHECK constraints, so they are added by hand.
+- Learned: CORS protects the user's browser, not the API. Idempotency keys make retries safe (the Stripe pattern). A webhook is deduped by the sender's message id. Never hold a database transaction open across a network call: save as `queued`, commit, call, then record the result. Live events only say *what changed*; the client reloads it, and reloads everything after a reconnect.
+- Next time I would: check the other side's logs first when "nothing shows up".

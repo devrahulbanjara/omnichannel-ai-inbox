@@ -21,8 +21,8 @@ To the inbox backend, RahulCoolGram is just one channel, so a real channel like 
 
 | Path | What it is | Status |
 |---|---|---|
-| `apps/api` | Backend: FastAPI, Python 3.14, Postgres ([structure](#backend-structure)) | Inbox API working |
-| `apps/web` | Staff dashboard: Next.js | UI on mock data |
+| `apps/api` | Backend: FastAPI, Python 3.14, Postgres ([structure](#backend-structure)) | Inbox, RahulCoolGram webhook and replies, live updates |
+| `apps/web` | Staff dashboard: Next.js | Reads and replies through the API, updates live |
 | `apps/rahulcoolgram` | RahulCoolGram, the Instagram clone ([README](apps/rahulcoolgram/README.md)) | Working |
 | `docs/` | Blueprint, roadmap, production-grade guide, learning map | — |
 
@@ -35,7 +35,8 @@ To the inbox backend, RahulCoolGram is just one channel, so a real channel like 
 | `core/` | settings, database engine, logging, request-id middleware, error handling |
 | `models/` | SQLAlchemy tables, one per file, with domain behaviour (e.g. `Conversation.reply_as_staff`) |
 | `schemas/` | Pydantic request and response shapes |
-| `services/` | business logic as classes (`ConversationService`, `MessageService`) |
+| `services/` | business logic as classes (`ConversationService`, `MessageService`, `WebhookService`) |
+| `channels/` | adapters that send messages out through each messaging app (`RahulCoolGramAdapter`) |
 | `routers/` | thin HTTP endpoints that call services |
 
 Schema changes go through Alembic (`apps/api/migrations`). Tests run against a real Postgres database.
@@ -50,12 +51,17 @@ docker compose up -d --wait
 cd apps/api
 cp .env.example .env
 uv run alembic upgrade head   # create the tables
-uv run python -m scripts.seed # demo data
+uv run python -m scripts.seed # demo data (--reset to start over)
 uv run fastapi dev
 
 # Dashboard → http://localhost:3000
 cd apps/web && npm install && npm run dev
+
+# RahulCoolGram → http://localhost:8100
+cd apps/rahulcoolgram && uv run fastapi dev --port 8100
 ```
+
+Write as a customer in RahulCoolGram: the message appears in the dashboard at once. Reply from the dashboard (assign the conversation to yourself first): the customer sees it in RahulCoolGram.
 
 RahulCoolGram's run instructions are in [`apps/rahulcoolgram/README.md`](apps/rahulcoolgram/README.md).
 

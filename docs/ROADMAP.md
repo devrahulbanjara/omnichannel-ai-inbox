@@ -428,12 +428,12 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 - [x] 3 Postgres in Docker (built together with 4 and 5, straight to SQLAlchemy + Alembic)
 - [x] 4 ORM and migrations
 - [x] 5 Seed data (2 demo conversations; richer data with step 6)
-- [ ] 6 Dashboard reads the API
-- [ ] 7 Staff can reply
-- [ ] 8 Link RahulCoolGram to the API
-- [ ] 9 Webhooks done right
-- [ ] 10 Outbound messages
-- [ ] 11 Live updates
+- [x] 6 Dashboard reads the API (generated types, web CI, defaults for fields the API lacks)
+- [x] 7 Staff can reply (Idempotency-Key; no optimistic UI yet)
+- [x] 8 Link RahulCoolGram to the API (channels + contact identities)
+- [x] 9 Webhooks done right
+- [x] 10 Outbound messages (no retries until the worker exists)
+- [x] 11 Live updates (WebSocket straight away, one in-process hub; ADR 0004)
 - [ ] Milestone A video
 
 **Stage B**
