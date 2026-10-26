@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.enums import Direction, SenderType
+from app.models.enums import DeliveryStatus, Direction, SenderType
 
 
 class MessageRead(BaseModel):
@@ -22,6 +22,11 @@ class MessageRead(BaseModel):
         Field(description="contact = the customer, staff = a store employee, ai = the AI agent"),
     ]
     text: str
+    delivery_status: Annotated[
+        DeliveryStatus | None,
+        Field(description="Outgoing messages only: queued, sent or failed"),
+    ]
+    error: Annotated[str | None, Field(description="Why delivery failed")]
     created_at: Annotated[datetime, Field(description="When the message was sent (UTC)")]
 
 

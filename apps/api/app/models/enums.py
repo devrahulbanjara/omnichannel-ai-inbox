@@ -17,3 +17,15 @@ class SenderType(StrEnum):
     CONTACT = "contact"  # the customer
     STAFF = "staff"  # a store employee
     AI = "ai"  # the AI agent
+
+
+class ChannelType(StrEnum):
+    RAHULCOOLGRAM = "rahulcoolgram"
+
+
+class DeliveryStatus(StrEnum):
+    """Outgoing messages only. Incoming messages have no delivery status."""
+
+    QUEUED = "queued"  # saved, not yet handed to the channel
+    SENT = "sent"  # the channel accepted it
+    FAILED = "failed"  # the channel could not be reached or refused it

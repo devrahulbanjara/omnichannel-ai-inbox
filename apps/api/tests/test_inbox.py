@@ -14,7 +14,7 @@ def test_list_conversations_newest_first(client):
 
     assert response.status_code == 200
     names = [c["contact_name"] for c in response.json()]
-    assert names == ["Anisha Karki", "Sujan Maharjan"]
+    assert names == ["Anisha Karki", "Sujan Maharjan", "Bikash Thapa"]
 
 
 def test_list_messages_of_a_conversation(client):

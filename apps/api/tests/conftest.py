@@ -12,8 +12,10 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
+from app.channels.base import DeliveryError
+from app.channels.rahulcoolgram import RahulCoolGramAdapter
 from app.core.database import SessionLocal, engine
-from app.main import app
+from app.main import create_app
 from app.models import Base
 from scripts.seed import seed_demo_data
 
@@ -46,5 +48,29 @@ def demo_data():
 
 
 @pytest.fixture
-def client() -> TestClient:
-    return TestClient(app)
+def client():
+    """A fresh app per test, so dependency overrides never leak between tests."""
+    with TestClient(create_app()) as client:
+        yield client
+
+
+class FakeRahulCoolGram:
+    """Stands in for RahulCoolGram's API. Records sent messages; set `down` to fail delivery."""
+
+    def __init__(self) -> None:
+        self.sent: list[tuple[str, str]] = []
+        self.down = False
+
+    async def send(self, external_user_id: str, text: str) -> str:
+        if self.down:
+            raise DeliveryError("Could not reach RahulCoolGram")
+        self.sent.append((external_user_id, text))
+        return f"rcg-{len(self.sent)}"
+
+
+@pytest.fixture(autouse=True)
+def rahulcoolgram(monkeypatch) -> FakeRahulCoolGram:
+    """Tests never call the real RahulCoolGram."""
+    fake = FakeRahulCoolGram()
+    monkeypatch.setattr(RahulCoolGramAdapter, "send", lambda _self, *args: fake.send(*args))
+    return fake

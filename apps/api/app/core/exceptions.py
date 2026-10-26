@@ -13,3 +13,8 @@ class AppError(Exception):
 class NotFoundError(AppError):
     status_code = 404
     code = "not_found"
+
+
+class UnauthorizedError(AppError):
+    status_code = 401
+    code = "unauthorized"

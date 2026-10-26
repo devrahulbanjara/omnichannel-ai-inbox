@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     log_json: bool = False  # one JSON object per log line
     database_url: str = "postgresql+asyncpg://inbox:inbox@localhost:5432/inbox"
     cors_origins: list[str] = ["http://localhost:3000"]  # browser origins allowed to call the API
+    rahulcoolgram_url: str = "http://localhost:8100"
+    rahulcoolgram_api_key: str = "dev-secret"  # shared key, sent as X-RahulCoolGram-Key both ways
 
     model_config = SettingsConfigDict(env_file=".env")
 

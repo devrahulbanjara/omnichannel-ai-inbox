@@ -1,24 +1,29 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
 from app.schemas.conversation import ConversationRead
+from app.schemas.error import ERROR_RESPONSES
 from app.schemas.message import MessageCreate, MessageRead
 from app.services.conversation import ConversationService
 from app.services.message import MessageService
+from app.services.organization import OrganizationService
 
-router = APIRouter(prefix="/conversations", tags=["inbox"])
+router = APIRouter(prefix="/conversations", tags=["inbox"], responses=ERROR_RESPONSES)
 
 
 @router.get("")
 async def list_conversations(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> list[ConversationRead]:
+    organization_service = OrganizationService(session)
     conversation_service = ConversationService(session)
-    return await conversation_service.list_recent()
+
+    org = await organization_service.get_current()
+    return await conversation_service.list_recent(org)
 
 
 @router.get("/{conversation_id}/messages")
@@ -26,10 +31,12 @@ async def list_messages(
     conversation_id: uuid.UUID,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> list[MessageRead]:
+    organization_service = OrganizationService(session)
     conversation_service = ConversationService(session)
     message_service = MessageService(session)
 
-    conversation = await conversation_service.get(conversation_id)
+    org = await organization_service.get_current()
+    conversation = await conversation_service.get(org, conversation_id)
     return await message_service.list_for(conversation)
 
 
@@ -38,9 +45,19 @@ async def send_staff_reply(
     conversation_id: uuid.UUID,
     body: MessageCreate,
     session: Annotated[AsyncSession, Depends(get_session)],
+    idempotency_key: Annotated[
+        str | None,
+        Header(
+            max_length=100,
+            description="Any unique string per reply. Resending with the same key "
+            "returns the first message instead of creating a second one",
+        ),
+    ] = None,
 ) -> MessageRead:
+    organization_service = OrganizationService(session)
     conversation_service = ConversationService(session)
     message_service = MessageService(session)
 
-    conversation = await conversation_service.get(conversation_id)
-    return await message_service.send_staff_reply(conversation, body.text)
+    org = await organization_service.get_current()
+    conversation = await conversation_service.get(org, conversation_id)
+    return await message_service.send_staff_reply(conversation, body.text, idempotency_key)
