@@ -45,7 +45,7 @@ docs/
   ROADMAP.md                 the route: step-by-step plan + Progress checklist. Read first.
   BLUEPRINT.md               the destination: principles, stack, data model, AI design
   PRODUCTION_GRADE.md        what industry-grade means; tool choices (OTel, Grafana, Langfuse; not LangSmith); OWASP LLM risks
-  learn.md                   concept map in study order (ROADMAP refers to its § numbers)
+  learn.md                   concept map in study order (ROADMAP refers to its section numbers)
   adr/                       Architecture Decision Records: 0001 stack · 0002 RahulCoolGram · 0003 API structure · 0004 RahulCoolGram link (0000-template.md is the format)
   JOURNAL.md                 learning log, one short entry per step
   SENDER_TYPES.md            who writes a message: contact (customer), staff (store employee), ai (the agent)
@@ -75,7 +75,7 @@ apps/
     src/lib/api.ts           fetch helpers, API type aliases, ApiError (error body + request ID); NEXT_PUBLIC_API_URL
     src/lib/from-api.ts      maps API shapes to screen types; fields the API lacks get defaults here
     src/lib/queries.ts       TanStack Query hooks: organization, conversations, messages, send reply, live updates
-    src/lib/types.ts         frontend domain types; mirror BLUEPRINT §5
+    src/lib/types.ts         frontend domain types; mirror BLUEPRINT #5
     src/lib/channels.ts      channel labels, NPR formatter, initials
     src/lib/tones.ts         status → Tag tone mappings
   rahulcoolgram/             RahulCoolGram: a simple Instagram clone (customer chat UI + small REST API)
@@ -90,7 +90,7 @@ Planned, don't create early: `apps/worker`, `packages/*`, `evals/`, `infra/`. Se
 
 ## Architecture rules
 
-From BLUEPRINT §1. They apply in every step.
+From BLUEPRINT #1. They apply in every step.
 
 1. **The LLM chooses, code decides.** Prices, totals, stock, IDs and statuses come from the database or tool results, never from model text.
 2. **One service, many callers.** REST routes and AI tools are thin adapters over the same application service.
@@ -121,4 +121,4 @@ Every tenant table has `org_id` from the start, even while there is only one org
 
 ## Definition of done for a step
 
-See `ROADMAP.md` §1. In short: the step's "Done when" check passes, tests and CI are green, an ADR exists if a real decision was made, `docs/JOURNAL.md` has an entry, and the step is ticked in Progress.
+See `ROADMAP.md` #1. In short: the step's "Done when" check passes, tests and CI are green, an ADR exists if a real decision was made, `docs/JOURNAL.md` has an entry, and the step is ticked in Progress.

@@ -8,12 +8,12 @@ This project is built to be **the project you talk about in interviews**. This f
 
 | Round | What happens | How this project helps |
 |---|---|---|
-| **Resume screen** | 6–10 seconds per resume | One strong bullet with real numbers (§3) |
-| **"Tell me about a project"** | 2–5 minutes | Your pitch (§2) |
+| **Resume screen** | 6–10 seconds per resume | One strong bullet with real numbers (#3) |
+| **"Tell me about a project"** | 2–5 minutes | Your pitch (#2) |
 | **Project deep dive** | 20–45 min of follow-ups on *your* project: trade-offs, failures, scale, what you'd change | Every ADR, journal entry and test is ammunition |
-| **System design** | "Design a chat system / webhook system / AI support agent" | You have actually built these parts (§5) |
-| **AI engineer round** | RAG, agents, tool calling, evals, prompt injection, cost | Stage B is exactly this (§4.6) |
-| **Behavioral** | "Tell me about a time…" | Real bugs and decisions from `JOURNAL.md` become STAR stories (§6) |
+| **System design** | "Design a chat system / webhook system / AI support agent" | You have actually built these parts (#5) |
+| **AI engineer round** | RAG, agents, tool calling, evals, prompt injection, cost | Stage B is exactly this (#4.6) |
+| **Behavioral** | "Tell me about a time…" | Real bugs and decisions from `JOURNAL.md` become STAR stories (#6) |
 | **Live coding / take-home** | Build a small API or feature | You'll have written FastAPI, SQL, tests and async code many times |
 
 Interviewers dig into trade-offs (expect **two or three levels of "why"**), failures ("what broke first?"), scale ("what changes at 10× load?") and your own decisions. They want concrete numbers, not "it was fast".
@@ -29,7 +29,7 @@ Templates. Replace the brackets with real facts **only once they're true**.
 
 **2 minutes:** problem → architecture in one sentence → the hardest problem → one number → what you'd do next.
 
-**10-minute deep dive** (use the diagram in `ROADMAP.md` §2):
+**10-minute deep dive** (use the diagram in `ROADMAP.md` #2):
 1. **Problem and constraints** (stores selling through DMs; AI must never invent prices; webhooks retry)
 2. **Architecture** (ingress → Postgres + job queue → worker → LLM → send; WebSocket for live UI)
 3. **Hardest problem** (e.g. duplicate replies from webhook retries → transactional enqueue + dedupe)

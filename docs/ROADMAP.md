@@ -15,7 +15,7 @@ The project is split into **stages** (A, B, C …). Each stage is split into **s
 | **Goal** | The one thing this step makes possible. |
 | **Why now** | The problem you feel *today* that this step solves. We never add a tool before we feel the need for it. |
 | **Build** | What you will actually create. |
-| **Learn** | The new concepts. Numbers like (§4) point to sections of `learn.md`. |
+| **Learn** | The new concepts. Numbers like (#4) point to sections of `learn.md`. |
 | **Production bar** | The extra 10% that separates industry work from a hobby project. Not optional. |
 | **Done when** | A check anyone can run to prove the step works. |
 | **Interview** | Questions you can answer well after this step. We practise them right after the step. |
@@ -137,7 +137,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 - **Goal:** a running Python web server.
 - **Why now:** everything else hangs off it.
 - **Build:** `apps/api` created with `uv` (Python 3.14); FastAPI app with `GET /health`; settings read from environment variables with `pydantic-settings` (`.env.example` committed, `.env` git-ignored); `ruff` for lint + format; one `pytest` test; a GitHub Actions workflow running lint + tests on every PR.
-- **Learn:** HTTP request/response, what a web framework does, ASGI and uvicorn, environment variables (§1, §6, §10). The *twelve-factor* rule: config lives in the environment, not in code.
+- **Learn:** HTTP request/response, what a web framework does, ASGI and uvicorn, environment variables (#1, #6, #10). The *twelve-factor* rule: config lives in the environment, not in code.
 - **Production bar:** CI from the very first endpoint; no secret ever in git.
 - **Done when:** `curl localhost:8000/health` → `{"status":"ok"}`; `/docs` shows the endpoint; CI is green on the PR.
 - **Interview:** "What happens when you type a URL and press enter?" · "Why environment variables for config?" · "What does CI give you on a one-person project?"
@@ -156,7 +156,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 - **Goal:** data survives restarts.
 - **Why now:** step 2 loses everything.
 - **Build:** `docker-compose.yaml` with Postgres 18 (named volume, healthcheck). Tables for `organization`, `contact`, `conversation`, `message` — **with `org_id` on every table** even though there is only one org. Split health into `GET /health/live` (process is up) and `GET /health/ready` (database reachable).
-- **Learn:** Docker, images vs containers, volumes, Compose (§10); tables, primary and foreign keys, `NOT NULL`, `UNIQUE` (§3). Liveness vs readiness.
+- **Learn:** Docker, images vs containers, volumes, Compose (#10); tables, primary and foreign keys, `NOT NULL`, `UNIQUE` (#3). Liveness vs readiness.
 - **Production bar:** readiness checks real dependencies; schema has constraints, not just columns.
 - **Done when:** rows survive an API restart; `docker compose down && up` keeps data; `/health/ready` returns 503 when Postgres is stopped.
 - **Interview:** "Why Postgres and not MongoDB here?" · "What is a foreign key for?" · "Liveness vs readiness probe?"
@@ -166,7 +166,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 - **Goal:** the schema is code, versioned and reproducible.
 - **Why now:** hand-written SQL files can't be applied safely to an existing database.
 - **Build:** SQLAlchemy 2 async models; Alembic with the first migration; a FastAPI dependency that gives each request a DB session; integration tests that run against a **real** Postgres (testcontainers or the Compose DB).
-- **Learn:** ORM, migrations, async/await and the event loop (§2), dependency injection (§6), transactions (§3).
+- **Learn:** ORM, migrations, async/await and the event loop (#2), dependency injection (#6), transactions (#3).
 - **Production bar:** CI runs `alembic upgrade head` on an empty DB and fails if models and migrations drift; tests hit real Postgres, not SQLite.
 - **Done when:** `alembic upgrade head` builds the schema from zero; `alembic downgrade -1` works; API uses the ORM.
 - **Interview:** "Why async for an I/O-heavy API?" · "How do you change a column on a big table without downtime?" · "What is a transaction, and when would you need one here?"
@@ -183,7 +183,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 
 - **Goal:** the two halves meet.
 - **Build:** generate TypeScript types from the API's OpenAPI schema (`openapi-typescript`); replace `mock-data.ts` with TanStack Query hooks; configure CORS.
-- **Learn:** CORS and why browsers enforce it; OpenAPI as a contract; client-side caching (§6, §9).
+- **Learn:** CORS and why browsers enforce it; OpenAPI as a contract; client-side caching (#6, #9).
 - **Production bar:** frontend types are **generated**, never hand-copied, so a backend change breaks the frontend build instead of production.
 - **Done when:** the dashboard shows rows from Postgres; changing a field name in the API makes `npm run build` fail.
 - **Interview:** "What is CORS and what problem does it solve?" · "How do you keep frontend and backend types in sync?"
@@ -199,7 +199,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 
 - **Goal:** a customer who talks to the store.
 - **Build:** RahulCoolGram already exists (`apps/rahulcoolgram`). Add `POST /webhooks/rahulcoolgram` to our API: it receives RahulCoolGram's JSON, finds-or-creates the contact and conversation, and stores the message.
-- **Learn:** webhooks (§1): who calls whom; two services with separate databases.
+- **Learn:** webhooks (#1): who calls whom; two services with separate databases.
 - **Done when:** a RahulCoolGram message appears in the dashboard after a refresh.
 - **Interview:** "What's a webhook, and how is it different from polling an API?"
 
@@ -208,7 +208,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 - **Goal:** the webhook can't be faked and can't create duplicates.
 - **Why now:** step 8 trusts anyone, and the same message sent twice is saved twice.
 - **Build:** reject requests without the right `X-RahulCoolGram-Key` (401); store every request raw in `webhook_event`; dedupe with `UNIQUE(channel_id, external_id)` + `ON CONFLICT DO NOTHING` using RahulCoolGram's `message_id`. Test a duplicate by sending the same request twice with curl.
-- **Learn:** shared-secret auth vs HMAC signatures (what real platforms use, and why), idempotent consumers, at-least-once delivery (§4, §7).
+- **Learn:** shared-secret auth vs HMAC signatures (what real platforms use, and why), idempotent consumers, at-least-once delivery (#4, #7).
 - **Production bar:** keep the raw payload for debugging and replay; a duplicate is a no-op, not an error.
 - **Done when:** wrong key → 401; the same webhook twice → one message.
 - **Interview:** "How do you verify a webhook came from the real sender?" · "Exactly-once vs at-least-once delivery?" · "Why store the raw payload?"
@@ -217,7 +217,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 
 - **Goal:** staff replies reach the customer.
 - **Build:** a `ChannelAdapter` interface with a RahulCoolGram implementation; staff reply → adapter calls RahulCoolGram's `POST /api/store/messages` (`httpx`, explicit timeout) → store the returned `message_id`; message `delivery_status` (`queued → sent → failed`).
-- **Learn:** HTTP clients, timeouts, error classes (retry 5xx/429, don't retry 4xx), adapters/ports (§6).
+- **Learn:** HTTP clients, timeouts, error classes (retry 5xx/429, don't retry 4xx), adapters/ports (#6).
 - **Production bar:** every outbound call has a timeout; failures are visible in the UI, never silent.
 - **Done when:** a full conversation works both ways; stopping RahulCoolGram shows a "failed" badge instead of an error page.
 - **Interview:** "Which errors should you retry and which not?" · "Why put channels behind an interface?"
@@ -226,7 +226,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 
 - **Goal:** no more refreshing.
 - **Build:** first, polling (`refetchInterval`); then a FastAPI WebSocket with rooms (`org:{id}`, `conversation:{id}`); on reconnect the client refetches since its last seen message.
-- **Learn:** polling vs SSE vs WebSocket, rooms, reconnect and resync (§5).
+- **Learn:** polling vs SSE vs WebSocket, rooms, reconnect and resync (#5).
 - **Done when:** a RahulCoolGram message appears in the dashboard instantly, and vice versa; killing and restarting the API loses nothing on screen.
 - **Interview:** "Design a chat system: how do messages get pushed to clients?" · "What happens when a client reconnects?"
 
@@ -241,7 +241,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 ### Step 12 · LLM client
 
 - **Build:** an `LLMClient` with one OpenAI-compatible implementation, configured for **Groq** (primary) and **Gemini** (fallback, via Gemini's OpenAI-compatible endpoint). Retries with backoff and jitter on 429/5xx/timeout, then fallback. Return text, tool calls, input/output tokens, latency, provider. A tiny CLI to chat with it.
-- **Learn:** prompts, tokens, context windows, rate limits, provider fallback (§8). Free-tier limits are per **organisation**, not per key.
+- **Learn:** prompts, tokens, context windows, rate limits, provider fallback (#8). Free-tier limits are per **organisation**, not per key.
 - **Production bar:** every call records tokens, latency and provider; secrets come from env.
 - **Done when:** the CLI answers; forcing a Groq failure shows the Gemini fallback in the logs.
 - **Interview:** "How do you handle LLM provider rate limits and outages?"
@@ -256,7 +256,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 ### Step 14 · Job queue
 
 - **Build:** Procrastinate worker. The webhook now saves the message **and** enqueues `run_agent` **in one transaction**, then returns 200. The worker runs the agent and sends. Because the worker is a separate process, it publishes `message.created` to **Redis pub/sub**, and the API forwards it to WebSockets.
-- **Learn:** queue vs pub/sub, workers, retries, transactional enqueue / outbox (§4).
+- **Learn:** queue vs pub/sub, workers, retries, transactional enqueue / outbox (#4).
 - **Production bar:** a crash between "save" and "enqueue" is impossible (same transaction); jobs have retry limits.
 - **Done when:** the webhook answers in milliseconds even when the LLM is slow; a replayed webhook causes no duplicate reply; killing the worker mid-run and restarting it still produces exactly one reply.
 - **Interview:** "Why not FastAPI BackgroundTasks?" · "Queue vs pub/sub — when do you use each?" · "What is the transactional outbox pattern?"
@@ -272,7 +272,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 
 - **Why now:** a message now passes through API → Postgres queue → worker → LLM → RahulCoolGram. When it's slow, logs alone can't tell you where.
 - **Build:** OpenTelemetry in API and worker (FastAPI, SQLAlchemy and httpx auto-instrumentation); trace context passed through the job so **one trace covers webhook → job → LLM → send**; a single `grafana/otel-lgtm` container in Compose (Grafana + Prometheus + Tempo + Loki in one) for local dev.
-- **Learn:** traces, spans, context propagation; the four golden signals (latency, traffic, errors, saturation) (§10).
+- **Learn:** traces, spans, context propagation; the four golden signals (latency, traffic, errors, saturation) (#10).
 - **Done when:** in Grafana you open one trace and see where the 4 seconds went.
 - **Interview:** "A customer says replies are slow. How do you find out why?"
 
@@ -280,7 +280,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 
 - **Why now:** from the next step on you'll change prompts constantly. Without tests for AI behaviour you can't tell if a change helped or hurt. Industry treats evals as the main thing that separates serious AI work from demos.
 - **Build:** `evals/` with 10 scripted conversations played through RahulCoolGram's API (greeting, FAQ, Nepali, Roman Nepali, "talk to a human", rude customer, prompt injection). Deterministic assertions (language, length, no invented prices). Results saved as a table you can compare between runs. LLM responses cached so re-runs are free and repeatable.
-- **Learn:** golden datasets, assertions vs LLM-as-judge, regression testing for AI (§8).
+- **Learn:** golden datasets, assertions vs LLM-as-judge, regression testing for AI (#8).
 - **Done when:** `uv run evals` prints a scorecard; a deliberately bad prompt makes the score drop.
 - **Interview:** "How do you test an LLM application?" · "How do you know a prompt change didn't make things worse?"
 
@@ -294,7 +294,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 ### Step 19 · Tools and the agent loop
 
 - **Build:** tools as typed Python functions with Pydantic input models (schema for the LLM *and* validation of its arguments); first tool `search_knowledge`; the loop (ask → run tools → feed results → repeat) with max steps and max cost; identity (`org_id`, `conversation_id`) injected by the server, never by the model.
-- **Learn:** tool calling, the agent loop, tool design ("tool descriptions are prompts"; make wrong usage hard), workflow vs agent (§8).
+- **Learn:** tool calling, the agent loop, tool design ("tool descriptions are prompts"; make wrong usage hard), workflow vs agent (#8).
 - **Production bar:** invalid tool arguments are rejected and fed back to the model, not crashed on; loops always terminate.
 - **Done when:** a question needing a lookup triggers `search_knowledge`, and the answer cites it; evals check *which* tools were called.
 - **Interview:** "Walk me through your agent loop." · "How do you stop an agent looping forever?" · "Agent or workflow — how do you decide?"
@@ -402,7 +402,7 @@ Observability isn't one step. It grows with the system:
 | Evals | Steps 17, 38 | Own harness (+ Langfuse datasets) | "Is the agent still good after this change?" |
 | SLOs, alerts, runbooks | Step 37 | Grafana alerting | "Are users hurting right now, and what do I do?" |
 
-See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith wasn't).
+See `PRODUCTION_GRADE.md` #5 for why these tools were chosen (and why LangSmith wasn't).
 
 ---
 
