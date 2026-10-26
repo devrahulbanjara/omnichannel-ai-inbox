@@ -16,7 +16,7 @@ import { AssigneeTag, preview } from "./shared"
 
 const FILTERS = {
   all: () => true,
-  mine: (c: Conversation) => c.assignee.type === "user" && c.assignee.isMe,
+  mine: (c: Conversation) => c.assignee.type === "staff" && c.assignee.isMe,
   unassigned: (c: Conversation) => c.assignee.type === "none",
   ai: (c: Conversation) => c.assignee.type === "ai",
   human: (c: Conversation) => c.needsHuman,

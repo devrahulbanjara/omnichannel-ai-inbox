@@ -1,6 +1,6 @@
 export type ChannelType = "instagram" | "messenger" | "whatsapp" | "telegram" | "web" | "email"
 
-export type Assignee = { type: "none" } | { type: "ai" } | { type: "user"; name: string; isMe: boolean }
+export type Assignee = { type: "none" } | { type: "ai" } | { type: "staff"; name: string; isMe: boolean }
 
 export type LeadStage = "new" | "interested" | "ordering" | "won" | "lost"
 
@@ -12,13 +12,13 @@ export type Message =
   | {
       id: string
       kind: "text"
-      sender: "contact" | "ai" | "user"
+      sender: "contact" | "ai" | "staff"
       text: string
       at: string
       status?: "sent" | "delivered" | "read"
       tags?: Tags
     }
-  | { id: string; kind: "products"; sender: "ai" | "user"; items: Product[]; at: string }
+  | { id: string; kind: "products"; sender: "ai" | "staff"; items: Product[]; at: string }
   | { id: string; kind: "event"; text: string; at: string }
 
 export type Note = { id: string; author: string; isAI: boolean; body: string; at: string }

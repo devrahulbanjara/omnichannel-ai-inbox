@@ -42,11 +42,11 @@ export function Workspace() {
 
   const assign = (assignee: Assignee) => {
     const label =
-      assignee.type === "ai" ? "AI agent" : assignee.type === "user" ? (assignee.isMe ? "you" : assignee.name) : "nobody"
+      assignee.type === "ai" ? "AI agent" : assignee.type === "staff" ? (assignee.isMe ? "you" : assignee.name) : "nobody"
     update((c) => ({
       ...c,
       assignee,
-      needsHuman: assignee.type === "user" ? false : c.needsHuman,
+      needsHuman: assignee.type === "staff" ? false : c.needsHuman,
       messages: [...c.messages, { id: crypto.randomUUID(), kind: "event", text: `Assigned to ${label}`, at: now() }],
     }))
   }
@@ -55,7 +55,7 @@ export function Workspace() {
     update((c) => ({
       ...c,
       lastAt: now(),
-      messages: [...c.messages, { id: crypto.randomUUID(), kind: "text", sender: "user", text, at: now(), status: "sent" }],
+      messages: [...c.messages, { id: crypto.randomUUID(), kind: "text", sender: "staff", text, at: now(), status: "sent" }],
     }))
 
   const select = (id: string) => {

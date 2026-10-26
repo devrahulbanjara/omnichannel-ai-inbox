@@ -44,7 +44,7 @@ export function ConversationView({
   onBack?: () => void
   onOpenDetails?: () => void
 }) {
-  const canReply = c.assignee.type === "user" && c.assignee.isMe
+  const canReply = c.assignee.type === "staff" && c.assignee.isMe
 
   return (
     <Panel>
@@ -109,13 +109,13 @@ export function ConversationView({
             <p className="min-w-48 flex-1 text-sm text-muted-foreground">
               {c.assignee.type === "ai"
                 ? "The AI agent is handling this conversation."
-                : c.assignee.type === "user"
+                : c.assignee.type === "staff"
                   ? `${c.assignee.name} is handling this conversation.`
                   : "Unassigned — assign it to reply."}
             </p>
             <div className="flex gap-2">
               <AssignMenu onAssign={onAssign} />
-              <Button variant="brand" size="sm" onClick={() => onAssign({ type: "user", name: "You", isMe: true })}>
+              <Button variant="brand" size="sm" onClick={() => onAssign({ type: "staff", name: "You", isMe: true })}>
                 Assign yourself
               </Button>
             </div>
@@ -141,7 +141,7 @@ function AssignMenu({ onAssign }: { onAssign: (a: Assignee) => void }) {
         <DropdownMenuSeparator />
         <DropdownMenuLabel>Team</DropdownMenuLabel>
         {TEAM.map((name) => (
-          <DropdownMenuItem key={name} onSelect={() => onAssign({ type: "user", name, isMe: false })}>
+          <DropdownMenuItem key={name} onSelect={() => onAssign({ type: "staff", name, isMe: false })}>
             {name}
           </DropdownMenuItem>
         ))}

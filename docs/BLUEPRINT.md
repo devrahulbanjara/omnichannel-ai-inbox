@@ -123,12 +123,12 @@ contact_identity(id, org_id, contact_id, channel_id, external_user_id UNIQUE(cha
                  username, profile JSONB)
 
 conversation(id, org_id, contact_id, channel_id, status[open|resolved|snoozed],
-             assignee_type[none|user|ai], assignee_user_id, needs_human BOOL,
+             assignee_type[none|staff|ai], assignee_user_id, needs_human BOOL,
              last_customer_message_at, last_message_at,
              sales_state, state JSONB /* cart, details, quote_id */,
              summary, summary_updated_at)
 
-message(id, org_id, conversation_id, direction[in|out], sender_type[contact|user|ai|system],
+message(id, org_id, conversation_id, direction[in|out], sender_type[contact|staff|ai|system],
         sender_user_id, content_type[text|image|file|product_card|system_event],
         text, payload JSONB, external_id, UNIQUE(channel_id, external_id),
         delivery_status[queued|sent|delivered|read|failed], error, agent_run_id, created_at)
@@ -212,7 +212,7 @@ class ChannelAdapter(Protocol):
 
 **Webhook ingress rule:** verify → store raw in `webhook_event` → enqueue → return `200` within milliseconds. Never call the LLM inside the webhook request.
 
-**Echo handling:** after `send()`, store the returned external id on the message immediately; when an echo arrives with that id, ignore it. Echoes with unknown ids = message sent from the native app by staff → store as `sender_type=user` (outside tool).
+**Echo handling:** after `send()`, store the returned external id on the message immediately; when an echo arrives with that id, ignore it. Echoes with unknown ids = message sent from the native app by staff → store as `sender_type=staff` (outside tool).
 
 **Reply window:** `can_send_freeform = now - last_customer_message_at < window`. Outside: use tag / template, or block with a UI explanation.
 
@@ -268,7 +268,7 @@ Typing indicators (`typing_on`, `sendChatAction`) are sent while the agent is ru
 
 ## 10. Conversation ownership & handoff
 
-- `assignee_type`: `none` → `user` | `ai`. Only the assignee can send. Others see read-only with **Assign yourself / Assign member**.
+- `assignee_type`: `none` → `staff` | `ai`. Only the assignee can send. Others see read-only with **Assign yourself / Assign member**.
 - Assignment changes write a `system_event` message into the timeline ("assigned to AI by …").
 - Inbox filters: Mine, Unassigned, Needs human (handoff), AI, by channel, by status.
 - **Handoff triggers** (any one):

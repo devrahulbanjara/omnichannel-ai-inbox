@@ -16,7 +16,7 @@ export function AssigneeTag({ conversation: c, className }: { conversation: Conv
         <AiMark /> AI agent
       </Tag>
     )
-  if (c.assignee.type === "user")
+  if (c.assignee.type === "staff")
     return (
       <Tag className={className}>
         <UserRound /> {c.assignee.name}
@@ -40,6 +40,6 @@ export function preview(c: Conversation) {
   if (!last) return ""
   if (last.kind === "products") return `Shared ${last.items.length} products`
   if (last.kind === "event") return last.text
-  const prefix = { contact: "", ai: "AI: ", user: "Team: " }[last.sender]
+  const prefix = { contact: "", ai: "AI: ", staff: "Team: " }[last.sender]
   return prefix + last.text
 }
