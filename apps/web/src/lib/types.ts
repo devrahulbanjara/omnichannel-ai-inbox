@@ -1,4 +1,4 @@
-export type ChannelType = "instagram" | "messenger" | "whatsapp" | "telegram" | "web" | "email"
+export type ChannelType = "rahulcoolgram" | "instagram" | "messenger" | "whatsapp" | "telegram" | "web" | "email"
 
 export type Assignee = { type: "none" } | { type: "ai" } | { type: "staff"; name: string; isMe: boolean }
 
@@ -15,7 +15,8 @@ export type Message =
       sender: "contact" | "ai" | "staff"
       text: string
       at: string
-      status?: "sent" | "delivered" | "read"
+      status?: "queued" | "sent" | "failed" | "delivered" | "read"
+      error?: string
       tags?: Tags
     }
   | { id: string; kind: "products"; sender: "ai" | "staff"; items: Product[]; at: string }
@@ -53,6 +54,7 @@ export type Conversation = {
   score: number
   unread: number
   lastAt: string
+  lastMessageText?: string
   summary: string
   messages: Message[]
   notes: Note[]

@@ -2,7 +2,8 @@
 
 import { useState, useSyncExternalStore } from "react"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-import { conversations as initial } from "@/lib/mock-data"
+import { ApiError } from "@/lib/api"
+import { useConversations, useMessages, useSendReply } from "@/lib/queries"
 import type { Assignee, Conversation } from "@/lib/types"
 import { AppRail } from "./app-rail"
 import { ContextPanel } from "./context-panel"
@@ -21,46 +22,57 @@ function useMedia(query: string) {
   )
 }
 
-const now = () => new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
-
 const Handle = () => (
   <ResizableHandle className="w-2 bg-transparent after:w-2 [&>div]:opacity-0 hover:[&>div]:opacity-100" withHandle />
 )
 
+function StatusMessage({ title, detail }: { title: string; detail?: string }) {
+  return (
+    <main className="flex h-dvh items-center justify-center p-6 text-center">
+      <div className="space-y-1">
+        <p className="text-sm font-medium">{title}</p>
+        {detail && <p className="text-sm text-muted-foreground">{detail}</p>}
+      </div>
+    </main>
+  )
+}
+
 export function Workspace() {
-  const [items, setItems] = useState<Conversation[]>(initial)
-  const [selectedId, setSelectedId] = useState(initial[0].id)
+  const { data: conversations, error, isPending } = useConversations()
+
+  if (isPending) return <StatusMessage title="Loading conversations…" />
+  if (error) {
+    const requestId = error instanceof ApiError && error.requestId ? ` · Request ID ${error.requestId}` : ""
+    return <StatusMessage title="Could not load conversations" detail={error.message + requestId} />
+  }
+  if (conversations.length === 0) return <StatusMessage title="No conversations yet" />
+
+  return <WorkspaceScreen conversations={conversations} />
+}
+
+function WorkspaceScreen({ conversations }: { conversations: Conversation[] }) {
+  const [selectedId, setSelectedId] = useState(conversations[0].id)
+  // Assignment has no API yet, so it is kept in this browser only.
+  const [assignees, setAssignees] = useState<Record<string, Assignee>>({})
   const [mobileView, setMobileView] = useState<"list" | "thread" | "details">("list")
   const isDesktop = useMedia("(min-width: 1024px)")
   const isWide = useMedia("(min-width: 1280px)")
   const [detailsOpen, setDetailsOpen] = useState(false)
 
-  const selected = items.find((c) => c.id === selectedId) ?? items[0]
+  const items = conversations.map((c) => (assignees[c.id] ? { ...c, assignee: assignees[c.id] } : c))
+  const current = items.find((c) => c.id === selectedId) ?? items[0]
+  const { data: messages = [] } = useMessages(current.id)
+  const selected = { ...current, messages }
+  const sendReply = useSendReply()
 
-  const update = (patch: (c: Conversation) => Conversation) =>
-    setItems((all) => all.map((c) => (c.id === selected.id ? patch(c) : c)))
-
-  const assign = (assignee: Assignee) => {
-    const label =
-      assignee.type === "ai" ? "AI agent" : assignee.type === "staff" ? (assignee.isMe ? "you" : assignee.name) : "nobody"
-    update((c) => ({
-      ...c,
-      assignee,
-      needsHuman: assignee.type === "staff" ? false : c.needsHuman,
-      messages: [...c.messages, { id: crypto.randomUUID(), kind: "event", text: `Assigned to ${label}`, at: now() }],
-    }))
-  }
+  const assign = (assignee: Assignee) => setAssignees((all) => ({ ...all, [selected.id]: assignee }))
 
   const send = (text: string) =>
-    update((c) => ({
-      ...c,
-      lastAt: now(),
-      messages: [...c.messages, { id: crypto.randomUUID(), kind: "text", sender: "staff", text, at: now(), status: "sent" }],
-    }))
+    sendReply.mutate({ conversationId: selected.id, text, idempotencyKey: crypto.randomUUID() })
 
   const select = (id: string) => {
     setSelectedId(id)
-    setItems((all) => all.map((c) => (c.id === id ? { ...c, unread: 0 } : c)))
+    sendReply.reset()
     setMobileView("thread")
   }
 
@@ -70,6 +82,7 @@ export function Workspace() {
       conversation={selected}
       onAssign={assign}
       onSend={send}
+      sendError={sendReply.error?.message}
       onBack={isDesktop ? undefined : () => setMobileView("list")}
       onOpenDetails={isWide ? undefined : () => (isDesktop ? setDetailsOpen(true) : setMobileView("details"))}
     />

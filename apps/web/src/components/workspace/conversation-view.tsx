@@ -35,12 +35,14 @@ export function ConversationView({
   conversation: c,
   onAssign,
   onSend,
+  sendError,
   onBack,
   onOpenDetails,
 }: {
   conversation: Conversation
   onAssign: (assignee: Assignee) => void
   onSend: (text: string) => void
+  sendError?: string
   onBack?: () => void
   onOpenDetails?: () => void
 }) {
@@ -72,13 +74,15 @@ export function ConversationView({
         )}
       </header>
 
-      <div className="glass-raised mx-4 mt-3 flex gap-2.5 rounded-xl px-3.5 py-2.5 text-sm leading-relaxed">
-        <AiMark className="mt-0.5" />
-        <p>
-          <span className="text-ai font-medium">Summary · </span>
-          <span className="text-muted-foreground">{c.summary}</span>
-        </p>
-      </div>
+      {c.summary && (
+        <div className="glass-raised mx-4 mt-3 flex gap-2.5 rounded-xl px-3.5 py-2.5 text-sm leading-relaxed">
+          <AiMark className="mt-0.5" />
+          <p>
+            <span className="text-ai font-medium">Summary · </span>
+            <span className="text-muted-foreground">{c.summary}</span>
+          </p>
+        </div>
+      )}
 
       <MessageScrollerProvider key={c.id} defaultScrollPosition="end" autoScroll>
         <MessageScroller className="min-h-0 flex-1">
@@ -96,6 +100,7 @@ export function ConversationView({
       </MessageScrollerProvider>
 
       <footer className="p-3 pt-0">
+        {sendError && <p className="px-1 pb-2 text-sm text-destructive">Reply not saved: {sendError}</p>}
         {canReply ? (
           <Composer onSend={onSend} onHandToAI={() => onAssign({ type: "ai" })} />
         ) : (

@@ -8,7 +8,7 @@ import { Panel } from "@/components/ui/surface"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChannelIcon } from "@/components/ui/channel-icon"
 import { CHANNEL_LABEL, CHANNEL_TYPES } from "@/lib/channels"
-import { STORE_NAME } from "@/lib/mock-data"
+import { useOrganization } from "@/lib/queries"
 import type { ChannelType, Conversation } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { ContactAvatar } from "./contact-avatar"
@@ -36,6 +36,7 @@ export function InboxList({
   const [filter, setFilter] = useState<Filter>("all")
   const [channel, setChannel] = useState<ChannelType | null>(null)
   const [query, setQuery] = useState("")
+  const { data: organization } = useOrganization()
 
   const visible = useMemo(
     () =>
@@ -55,7 +56,7 @@ export function InboxList({
         <button className="flex w-full items-center gap-2 rounded-lg text-left">
           <div className="min-w-0 flex-1">
             <p className="text-caption">Workspace</p>
-            <p className="text-title truncate">{STORE_NAME}</p>
+            <p className="text-title truncate">{organization?.name ?? ""}</p>
           </div>
           <ChevronsUpDown className="size-4 text-muted-foreground" />
         </button>

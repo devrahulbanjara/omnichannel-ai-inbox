@@ -1,4 +1,5 @@
 import { useId } from "react"
+import Image from "next/image"
 import { Globe, Mail } from "lucide-react"
 import type { ChannelType } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -43,6 +44,10 @@ const FILLS: Record<Brand, { solid: string } | { stops: [number, string][]; cx: 
 
 export function ChannelIcon({ channel, className }: { channel: ChannelType; className?: string }) {
   const id = useId()
+  if (channel === "rahulcoolgram")
+    return (
+      <Image src="/channels/rahulcoolgram.png" alt="" width={16} height={16} className={cn("size-4 shrink-0 rounded-sm", className)} />
+    )
   if (channel === "web") return <Globe aria-hidden className={cn("size-4 text-muted-foreground", className)} />
   if (channel === "email") return <Mail aria-hidden className={cn("size-4 text-muted-foreground", className)} />
 

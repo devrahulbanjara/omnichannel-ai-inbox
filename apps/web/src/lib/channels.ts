@@ -1,6 +1,7 @@
 import type { ChannelType } from "./types"
 
 export const CHANNEL_LABEL: Record<ChannelType, string> = {
+  rahulcoolgram: "RahulCoolGram",
   instagram: "Instagram",
   messenger: "Messenger",
   whatsapp: "WhatsApp",

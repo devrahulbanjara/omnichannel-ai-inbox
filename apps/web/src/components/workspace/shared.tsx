@@ -37,7 +37,7 @@ export const LEAD_STAGE: Record<Conversation["leadStage"], string> = {
 
 export function preview(c: Conversation) {
   const last = c.messages.at(-1)
-  if (!last) return ""
+  if (!last) return c.lastMessageText ?? ""
   if (last.kind === "products") return `Shared ${last.items.length} products`
   if (last.kind === "event") return last.text
   const prefix = { contact: "", ai: "AI: ", staff: "Team: " }[last.sender]

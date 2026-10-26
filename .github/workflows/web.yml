@@ -1,0 +1,27 @@
+name: web
+
+on:
+  push:
+    paths: ["apps/web/**", "apps/api/openapi.json", ".github/workflows/web.yml"]
+  pull_request:
+    paths: ["apps/web/**", "apps/api/openapi.json", ".github/workflows/web.yml"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      # Regenerates src/lib/api-types.ts from apps/api/openapi.json, then type-checks and builds.
+      - run: npm run build
+      # The committed types must match the API schema.
+      - run: git diff --exit-code src/lib/api-types.ts

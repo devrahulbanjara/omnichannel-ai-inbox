@@ -1,4 +1,4 @@
-import { Check, CheckCheck, Info, Luggage, ShoppingCart } from "lucide-react"
+import { Check, CheckCheck, Clock, Info, Luggage, ShoppingCart, TriangleAlert } from "lucide-react"
 import { AiMark } from "@/components/ui/ai-mark"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Button } from "@/components/ui/button"
@@ -37,8 +37,17 @@ function ProductCard({ product }: { product: Product }) {
   )
 }
 
-function Status({ status }: { status?: "sent" | "delivered" | "read" }) {
+type TextMessage = Extract<MessageT, { kind: "text" }>
+
+function Status({ status, error }: Pick<TextMessage, "status" | "error">) {
   if (!status) return null
+  if (status === "queued") return <Clock className="size-3.5" aria-label="Sending" />
+  if (status === "failed")
+    return (
+      <Tag tone="danger" title={error}>
+        <TriangleAlert /> Not delivered{error && ` · ${error}`}
+      </Tag>
+    )
   if (status === "sent") return <Check className="size-3.5" />
   return <CheckCheck className={cn("size-3.5", status === "read" && "text-primary")} />
 }
@@ -90,7 +99,7 @@ export function MessageItem({ message: m }: { message: MessageT }) {
             </>
           )}
           <span className="tabular-nums">{m.at}</span>
-          {m.kind === "text" && <Status status={m.status} />}
+          {m.kind === "text" && <Status status={m.status} error={m.error} />}
         </MessageFooter>
       </MessageContent>
     </Message>
