@@ -4,6 +4,15 @@ One inbox for every customer conversation a store has, with an AI agent that ans
 
 The agent works within strict rules: it can only act through typed tools, and prices, totals, stock and order numbers always come from the database, never from the model.
 
+## Demo
+
+https://github.com/user-attachments/assets/0b9a349b-6b40-4407-8c99-7dbfba5da6ca
+
+1. A customer sends a message from RahulCoolGram.
+2. It reaches the inbox through a webhook and appears on the staff dashboard live, over a WebSocket.
+3. A staff member replies from the dashboard.
+4. The reply is delivered to RahulCoolGram through its API and shows up on the customer's screen.
+
 ## What we simulate: RahulCoolGram
 
 <img src="docs/assets/rahulcoolgram.png" alt="RahulCoolGram logo" width="180" align="right">
