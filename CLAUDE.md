@@ -14,7 +14,7 @@ This is the owner's **flagship learning project**. It is built one roadmap step 
 
 ## Commands
 
-Run each command from the app's own folder.
+Run each command from the app's own folder. `./dev.sh` (repo root) starts the API, dashboard and RahulCoolGram together; Ctrl+C stops all three.
 
 | App | Folder | Run (dev, auto-reload) | Check before committing |
 |---|---|---|---|
@@ -37,6 +37,7 @@ CLAUDE.md                    this file
 .mcp.json                    MCP servers (Playwright for browser checks)
 .claude/settings.local.json  Claude Code settings (tracked on purpose)
 .github/workflows/           CI: api.yml (ruff, alembic check, pytest against a Postgres service) · web.yml (lint, build, generated types are current) · rahulcoolgram.yml
+dev.sh                       starts API + dashboard + RahulCoolGram with prefixed output
 docker-compose.yaml          local Postgres 18 (named volume, healthcheck)
 docker/postgres-init.sql     creates the inbox_test database on first start
 

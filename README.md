@@ -61,6 +61,8 @@ cd apps/web && npm install && npm run dev
 cd apps/rahulcoolgram && uv run fastapi dev --port 8100
 ```
 
+Or, once set up, start all three apps with one command from the repo root: `./dev.sh` (Ctrl+C stops all three).
+
 Write as a customer in RahulCoolGram: the message appears in the dashboard at once. Reply from the dashboard (assign the conversation to yourself first): the customer sees it in RahulCoolGram.
 
 RahulCoolGram's run instructions are in [`apps/rahulcoolgram/README.md`](apps/rahulcoolgram/README.md).
