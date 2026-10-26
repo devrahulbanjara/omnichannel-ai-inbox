@@ -14,3 +14,15 @@ Template:
 ```
 
 ---
+
+## Step 0 · Set up the workshop — 2026-10-26
+- Built: ADR template + ADRs 0001 (stack) and 0002 (RahulCoolGram), this journal, first PR merged on GitHub.
+- Broke / surprised me: branch protection needs a paid plan for private repos, so the "PR + green CI" rule is a habit, not enforced.
+- Learned: an ADR records *why* we chose something and what we rejected. Queues: RabbitMQ is a separate broker; Procrastinate keeps jobs in Postgres, so saving data and queueing a job is one transaction (no dual-write problem, no outbox needed).
+- Next time I would: skip things that don't help yet (project board) and get to code sooner.
+
+## Step 1 · API skeleton — 2026-10-26
+- Built: `core/config.py` with pydantic-settings, `/health` test, ruff, and a CI workflow for `apps/api`. Renamed `apps/simulator` to `apps/rahulcoolgram`.
+- Broke / surprised me: `from .main import app` in the test failed with "attempted relative import with no known parent package". Also, pytest fails when there are no tests, so CI must be added together with the first test.
+- Learned: Python finds imports by searching the folders in `sys.path`. Our root is `apps/api`, so imports are absolute from there (`from core.config import settings`), never relative. Settings come from environment variables, so the same code runs everywhere (`APP_NAME=... ` changed the title).
+- Next time I would: say the import path out loud from the root before typing it.
