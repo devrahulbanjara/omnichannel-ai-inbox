@@ -42,6 +42,8 @@ docs/
 apps/
   api/                    FastAPI backend (Python 3.14, uv)
     main.py               app entrypoint (`main:app`, set in pyproject [tool.fastapi])
+    core/config.py        Settings (pydantic-settings): read from env vars / .env. Import: `from core.config import settings`
+    tests/                pytest tests. Imports are absolute from apps/api (`from main import app`), never relative
     pyproject.toml        deps + config; uv.lock is the lockfile
   web/                    Next.js dashboard (staff UI). Currently runs on mock data.
     AGENTS.md             Next.js 16 rules — READ before touching Next.js code
