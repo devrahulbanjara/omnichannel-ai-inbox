@@ -425,7 +425,7 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 
 **Stage A**
 - [x] 1 API skeleton
-- [ ] 2 In-memory inbox
+- [x] 2 In-memory inbox
 - [ ] 3 Postgres in Docker
 - [ ] 4 ORM and migrations
 - [ ] 5 Seed data

@@ -26,3 +26,9 @@ Template:
 - Broke / surprised me: `from .main import app` in the test failed with "attempted relative import with no known parent package". Also, pytest fails when there are no tests, so CI must be added together with the first test.
 - Learned: Python finds imports by searching the folders in `sys.path`. Our root is `apps/api`, so imports are absolute from there (`from core.config import settings`), never relative. Settings come from environment variables, so the same code runs everywhere (`APP_NAME=... ` changed the title).
 - Next time I would: say the import path out loud from the root before typing it.
+
+## Step 2 · In-memory inbox — 2026-10-26
+- Built: `GET /conversations`, `GET` + `POST /conversations/{id}/messages` on Python dicts; one error shape (`{"error": {"code", "message"}}`); a request id on every request and JSON log lines. 17 tests.
+- Broke / surprised me: `Annotated(...)` instead of `Annotated[...]` (round vs square brackets). A route path repeated the router prefix (`/conversations/conversations/...`). Two 404 tests "passed" before the routes existed, because every unknown URL is a 404.
+- Learned: tests written first act as the spec. The server decides `sender_type` and `direction`, never the client. Renamed `user` → `staff` because "user" was ambiguous. Restarting the server loses all messages: that's why step 3 adds Postgres.
+- Next time I would: watch a new test fail for the right reason before trusting it.

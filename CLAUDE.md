@@ -49,6 +49,10 @@ apps/
   api/                       FastAPI backend
     main.py                  app entrypoint (`main:app`, set in pyproject [tool.fastapi])
     core/config.py           Settings from env vars / .env (pydantic-settings)
+    core/errors.py           one error shape for every error: {"error": {"code", "message"}}
+    core/logs.py             JSON log lines on stdout, tagged with the request id
+    core/request_id.py       middleware: request id per request (X-Request-ID header) + one log line per request
+    inbox/                   conversations + messages: schemas.py (Pydantic models) · store.py (in-memory dicts, step 3 replaces) · routes.py (endpoints)
     tests/                   pytest tests
     .env.example             every env var the API reads (copy to .env locally)
   web/                       Next.js staff dashboard, still on mock data
