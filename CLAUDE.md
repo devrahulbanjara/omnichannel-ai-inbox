@@ -56,8 +56,7 @@ apps/
     app/models/              SQLAlchemy tables, one per file: organization, contact, conversation, message · base.py (Base) · enums.py (status, direction, sender type)
     app/schemas/             Pydantic API shapes: ConversationRead, MessageRead, MessageCreate
     app/services/            business logic as classes (ConversationService, MessageService); take a session in __init__, raise AppError subclasses
-    app/routers/             thin HTTP layer: health.py, conversations.py
-    app/dependencies.py      SessionDep and service dependencies for routes
+    app/routers/             thin HTTP layer: health.py, conversations.py; routes take the session via Depends(get_session) and build services
     migrations/              Alembic migrations (versions/ = one file per schema change); alembic.ini configures it
     scripts/seed.py          demo data for local dev
     tests/                   pytest tests

@@ -15,7 +15,8 @@ service). The by-domain layout suits large monoliths with many domains; this pro
 One `app/` package in `apps/api`, organised by layer:
 
 - `core/` (settings, database, logging, middleware, errors), `models/`, `schemas/`, `services/`,
-  `routers/`, plus `dependencies.py` and `main.py` (`create_app()`).
+  `routers/`, plus `main.py` (`create_app()`). Routes take the session with
+  `Depends(get_session)` and build the services they need; no separate dependencies module.
 - Services are classes that receive the request's session in `__init__` and raise `AppError`
   subclasses, never `HTTPException`. Models carry domain behaviour (`Conversation.reply_as_staff`).
 - Imports are absolute (`from app.core.config import settings`).

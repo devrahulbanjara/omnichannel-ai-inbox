@@ -1,8 +1,11 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import SessionDep
+from app.core.database import get_session
 
 router = APIRouter(prefix="/health", tags=["health"])
 
@@ -13,7 +16,7 @@ def live() -> dict[str, str]:
 
 
 @router.get("/ready")
-async def ready(session: SessionDep):
+async def ready(session: Annotated[AsyncSession, Depends(get_session)]):
     try:
         await session.execute(text("SELECT 1"))
     except Exception:
