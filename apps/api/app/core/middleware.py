@@ -1,4 +1,4 @@
-"""Middleware: give every request an id, attach it to every log line, and log how it went."""
+"""Request ID middleware: assigns an ID per request, binds it to log records, logs each request."""
 
 import time
 import uuid
@@ -10,11 +10,10 @@ HEADER = "X-Request-ID"
 
 
 async def request_id_middleware(request: Request, call_next) -> Response:
-    # Reuse the caller's id if it sent a sane one (lets us follow a request across services).
+    # Accept a client-supplied ID of up to 64 characters; otherwise generate one.
     incoming = request.headers.get(HEADER, "")
     request_id = incoming if 0 < len(incoming) <= 64 else uuid.uuid4().hex
 
-    # Every log line written while handling this request gets this request_id.
     with logger.contextualize(request_id=request_id):
         start = time.perf_counter()
         try:

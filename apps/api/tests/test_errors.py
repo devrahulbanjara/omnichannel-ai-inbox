@@ -3,7 +3,7 @@ import uuid
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from core.errors import add_error_handlers
+from app.core.errors import add_error_handlers
 
 
 def test_unknown_conversation_has_error_shape(client):

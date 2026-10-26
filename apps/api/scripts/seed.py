@@ -1,4 +1,4 @@
-"""Demo data for local development. Run: uv run python seed.py"""
+"""Seed demo data for local development: `uv run python -m scripts.seed`."""
 
 import asyncio
 from datetime import timedelta
@@ -7,8 +7,10 @@ from loguru import logger
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.db import SessionLocal
-from inbox.models import Contact, Conversation, Message, Organization, utc_now
+from app.core.database import SessionLocal
+from app.models import Contact, Conversation, Message, Organization
+from app.models.base import utc_now
+from app.models.enums import Direction, SenderType
 
 DEMO_CHATS = [
     ("Sujan Maharjan", "Do you have the 24-inch suitcase in black?", 30),
@@ -19,7 +21,7 @@ DEMO_CHATS = [
 async def seed_demo_data(session: AsyncSession) -> None:
     org = Organization(name="Himal Luggage Co.")
     session.add(org)
-    await session.flush()  # sends the INSERT now, so org.id can be used below
+    await session.flush()  # assigns org.id
 
     for name, text, minutes_ago in DEMO_CHATS:
         at = utc_now() - timedelta(minutes=minutes_ago)
@@ -38,8 +40,8 @@ async def seed_demo_data(session: AsyncSession) -> None:
             Message(
                 org_id=org.id,
                 conversation_id=conversation.id,
-                direction="in",
-                sender_type="contact",
+                direction=Direction.IN,
+                sender_type=SenderType.CONTACT,
                 text=text,
                 created_at=at,
             )

@@ -4,7 +4,7 @@ from loguru import logger
 
 @pytest.fixture
 def logs():
-    """Collect the log records written during a test."""
+    """Log records emitted during the test."""
     records = []
     sink_id = logger.add(lambda message: records.append(message.record), level="INFO")
     yield records

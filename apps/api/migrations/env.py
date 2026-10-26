@@ -1,4 +1,4 @@
-"""Alembic runs this for every migration command. It connects with our settings and models."""
+"""Alembic environment: uses the app settings and model metadata."""
 
 import asyncio
 from logging.config import fileConfig
@@ -6,9 +6,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 
-import inbox.models  # noqa: F401  (imports the tables so Base.metadata knows them)
-from core.config import settings
-from core.db import Base
+from app.core.config import settings
+from app.models import Base  # registers all tables on Base.metadata
 
 if context.config.config_file_name is not None:
     fileConfig(context.config.config_file_name)
@@ -17,7 +16,7 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    """`alembic upgrade --sql`: print the SQL instead of running it."""
+    """Offline mode (`alembic upgrade --sql`): emit SQL without connecting."""
     context.configure(
         url=settings.database_url, target_metadata=target_metadata, literal_binds=True
     )

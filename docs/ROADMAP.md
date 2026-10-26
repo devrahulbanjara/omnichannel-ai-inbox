@@ -142,21 +142,20 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 - **Done when:** `curl localhost:8000/health` → `{"status":"ok"}`; `/docs` shows the endpoint; CI is green on the PR.
 - **Interview:** "What happens when you type a URL and press enter?" · "Why environment variables for config?" · "What does CI give you on a one-person project?"
 
-### Step 2 · In-memory inbox
+### Step 2 · API shape, errors and logging
 
-- **Goal:** design the API shape before touching a database.
-- **Why now:** it's easier to think about URLs and data shapes without SQL in the way.
-- **Build:** Pydantic models `Conversation`, `Message`; endpoints `GET /conversations`, `GET /conversations/{id}/messages`, `POST /conversations/{id}/messages`, stored in a Python dict. A consistent error format (`{"error": {"code", "message"}}`). Middleware that adds a **request id** to every request and log line; logs written as **JSON to stdout**.
-- **Learn:** REST resources, HTTP methods, status codes (200/201/400/404/422), Pydantic validation, middleware. **Structured logging** — the first layer of observability.
-- **Production bar:** every log line has a request id; every error has the same shape.
-- **Done when:** you can create and list messages from `/docs`; a bad body gives a clean 422; restart → **the data is gone**. That pain is the reason for step 3.
+- **Goal:** the inbox endpoints and the cross-cutting basics every later endpoint reuses.
+- **Build:** endpoints `GET /conversations`, `GET /conversations/{id}/messages`, `POST /conversations/{id}/messages` with separate input and output schemas (`MessageCreate` vs `MessageRead`). A consistent error format (`{"error": {"code", "message"}}`). Middleware that adds a **request id** to every request and log line; logs via **loguru** (plain text locally, JSON with `LOG_JSON=true`).
+- **Learn:** REST resources, status codes (200/201/400/404/422), Pydantic validation, middleware. **Structured logging**: the first layer of observability.
+- **Production bar:** every log line has a request id; every error has the same shape; the server, not the client, sets `direction` and `sender_type`.
+- **Done when:** you can create and list messages from `/docs`; a bad body gives a clean 422 in the standard error shape.
 - **Interview:** "PUT vs PATCH vs POST?" · "What's the difference between 400, 401, 403, 404, 422?" · "Why structured logs instead of print?"
 
 ### Step 3 · Postgres in Docker
 
 - **Goal:** data survives restarts.
 - **Why now:** step 2 loses everything.
-- **Build:** `compose.yaml` with Postgres 18 (named volume, healthcheck). Tables for `organization`, `contact`, `conversation`, `message` — **with `org_id` on every table** even though there is only one org. Split health into `GET /health/live` (process is up) and `GET /health/ready` (database reachable).
+- **Build:** `docker-compose.yaml` with Postgres 18 (named volume, healthcheck). Tables for `organization`, `contact`, `conversation`, `message` — **with `org_id` on every table** even though there is only one org. Split health into `GET /health/live` (process is up) and `GET /health/ready` (database reachable).
 - **Learn:** Docker, images vs containers, volumes, Compose (§10); tables, primary and foreign keys, `NOT NULL`, `UNIQUE` (§3). Liveness vs readiness.
 - **Production bar:** readiness checks real dependencies; schema has constraints, not just columns.
 - **Done when:** rows survive an API restart; `docker compose down && up` keeps data; `/health/ready` returns 503 when Postgres is stopped.
@@ -177,7 +176,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 - **Goal:** realistic data to look at.
 - **Build:** a `seed` command: demo org *Himal Luggage Co.*, 5 contacts, conversations with messages (reuse the dashboard's `mock-data.ts` content).
 - **Learn:** transactions (all-or-nothing seed), idempotent scripts (running twice doesn't duplicate).
-- **Done when:** `uv run seed` on an empty DB fills it; running it again changes nothing.
+- **Done when:** `uv run python -m scripts.seed` on an empty DB fills it; running it again changes nothing.
 - **Interview:** "What does idempotent mean? Give an example from your project."
 
 ### Step 6 · Dashboard reads the API
@@ -312,7 +311,7 @@ This stage follows two rules from Anthropic's *Building effective agents*: **sta
 
 ### Step 21 · Handoff to humans
 
-- **Build:** ownership (`assignee_type`: none / user / ai; only the owner can send); `handoff_to_human(reason)` tool; rule triggers (refund, complaint, "talk to a human", abuse, repeated failures); handoff writes an internal note + a timeline event and notifies staff.
+- **Build:** ownership (`assignee_type`: none / staff / ai; only the owner can send); `handoff_to_human(reason)` tool; rule triggers (refund, complaint, "talk to a human", abuse, repeated failures); handoff writes an internal note + a timeline event and notifies staff.
 - **Learn:** human-in-the-loop design, ownership locks.
 - **Done when:** "I want a refund" hands off, the AI goes quiet, and the dashboard shows "Needs human"; evals cover it.
 - **Interview:** "When should an AI agent give up and hand off?"
@@ -394,7 +393,7 @@ Observability isn't one step. It grows with the system:
 
 | Layer | Added in | Tool | Answers |
 |---|---|---|---|
-| Structured JSON logs + request id | Step 2 | Python logging | "What happened in this request?" |
+| Structured logs + request id | Step 2 | loguru (JSON in production) | "What happened in this request?" |
 | Health checks (live / ready) | Step 3 | FastAPI | "Is it up? Can it reach its dependencies?" |
 | Traces across processes | Step 16 | OpenTelemetry → `grafana/otel-lgtm` (Tempo) | "Where did the time go?" |
 | Metrics + dashboards | Step 16 | OpenTelemetry → Prometheus, Grafana | "How is the system doing overall?" |
@@ -414,7 +413,7 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 - **No queue or Redis until step 14**, after you've seen the naive way break.
 - **Polling before WebSocket.**
 - **Langfuse Cloud before self-hosting** (self-hosting needs ClickHouse + Redis + S3).
-- **Flat `apps/api` package first**, split into `packages/…` once it's big enough for the split to be obvious.
+- **One layered `app/` package in `apps/api`** (core, models, schemas, services, routers; see ADR 0003), split into `packages/…` only if it grows big enough to need it.
 
 ---
 
@@ -425,7 +424,7 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 
 **Stage A**
 - [x] 1 API skeleton
-- [x] 2 In-memory inbox
+- [x] 2 API shape, errors and logging
 - [x] 3 Postgres in Docker (built together with 4 and 5, straight to SQLAlchemy + Alembic)
 - [x] 4 ORM and migrations
 - [x] 5 Seed data (2 demo conversations; richer data with step 6)

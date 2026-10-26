@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-from core.db import get_session
-from main import app
+from app.core.database import get_session
+from app.main import app
 
 
 def test_live_returns_ok(client):

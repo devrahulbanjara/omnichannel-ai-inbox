@@ -21,10 +21,24 @@ To the inbox backend, RahulCoolGram is just one channel, so a real channel like 
 
 | Path | What it is | Status |
 |---|---|---|
-| `apps/api` | Backend: FastAPI, Python 3.14 | Started |
+| `apps/api` | Backend: FastAPI, Python 3.14, Postgres ([structure](#backend-structure)) | Inbox API working |
 | `apps/web` | Staff dashboard: Next.js | UI on mock data |
 | `apps/rahulcoolgram` | RahulCoolGram, the Instagram clone ([README](apps/rahulcoolgram/README.md)) | Working |
 | `docs/` | Blueprint, roadmap, production-grade guide, learning map | — |
+
+## Backend structure
+
+`apps/api/app` is one layered package:
+
+| Folder | Holds |
+|---|---|
+| `core/` | settings, database engine, logging, request-id middleware, error handling |
+| `models/` | SQLAlchemy tables, one per file, with domain behaviour (e.g. `Conversation.reply_as_staff`) |
+| `schemas/` | Pydantic request and response shapes |
+| `services/` | business logic as classes (`ConversationService`, `MessageService`) |
+| `routers/` | thin HTTP endpoints that call services |
+
+Schema changes go through Alembic (`apps/api/migrations`). Tests run against a real Postgres database.
 
 ## Run it
 
@@ -36,7 +50,7 @@ docker compose up -d --wait
 cd apps/api
 cp .env.example .env
 uv run alembic upgrade head   # create the tables
-uv run python seed.py         # demo data
+uv run python -m scripts.seed # demo data
 uv run fastapi dev
 
 # Dashboard → http://localhost:3000
@@ -46,10 +60,3 @@ cd apps/web && npm install && npm run dev
 RahulCoolGram's run instructions are in [`apps/rahulcoolgram/README.md`](apps/rahulcoolgram/README.md).
 
 Requirements: [uv](https://docs.astral.sh/uv/) (installs Python 3.14 for you), Docker and Node.js.
-
-## Docs
-
-- [`docs/BLUEPRINT.md`](docs/BLUEPRINT.md): the target architecture
-- [`docs/ROADMAP.md`](docs/ROADMAP.md): the step-by-step build plan and progress
-- [`docs/PRODUCTION_GRADE.md`](docs/PRODUCTION_GRADE.md): what makes it production-grade, and the tool choices
-- [`docs/learn.md`](docs/learn.md): the concepts behind it, in study order

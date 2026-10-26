@@ -1,8 +1,8 @@
-"""What the inbox endpoints must do."""
+"""Inbox endpoint tests."""
 
 import uuid
 
-MISSING_ID = str(uuid.uuid4())  # a valid id that no conversation has
+MISSING_ID = str(uuid.uuid4())  # valid UUID with no matching conversation
 
 
 def first_conversation_id(client) -> str:
@@ -73,7 +73,7 @@ def test_empty_reply_is_rejected_with_422(client):
 
 
 def test_client_cannot_choose_the_sender(client):
-    """Extra fields are ignored: the server decides direction and sender, not the caller."""
+    """Extra body fields are ignored; the server sets direction and sender."""
     conversation_id = first_conversation_id(client)
 
     response = client.post(
@@ -93,7 +93,7 @@ def test_malformed_conversation_id_is_rejected_with_422(client):
 
 
 def test_reply_is_still_there_in_a_new_session(client):
-    """It's really in Postgres: a fresh request (new DB session) still sees it."""
+    """A reply persists across sessions."""
     conversation_id = first_conversation_id(client)
     client.post(f"/conversations/{conversation_id}/messages", json={"text": "Saved?"})
 

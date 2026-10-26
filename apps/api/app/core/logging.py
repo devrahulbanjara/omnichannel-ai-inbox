@@ -9,7 +9,7 @@ FORMAT = (
 
 
 def configure_logging(level: str, json: bool) -> None:
-    """Readable lines for local dev; one JSON object per line when `json` is on (production)."""
-    logger.remove()  # drop loguru's default output
-    logger.configure(extra={"request_id": "-"})  # shown when we're outside a request
+    """Plain-text log lines, or one JSON object per line when `json` is true."""
+    logger.remove()
+    logger.configure(extra={"request_id": "-"})  # outside a request
     logger.add(sys.stdout, level=level, format=FORMAT, serialize=json)
