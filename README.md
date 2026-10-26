@@ -29,8 +29,15 @@ To the inbox backend, RahulCoolGram is just one channel, so a real channel like 
 ## Run it
 
 ```bash
+# Postgres (Docker)
+docker compose up -d --wait
+
 # Backend API → http://localhost:8000 (docs at /docs)
-cd apps/api && uv run fastapi dev
+cd apps/api
+cp .env.example .env
+uv run alembic upgrade head   # create the tables
+uv run python seed.py         # demo data
+uv run fastapi dev
 
 # Dashboard → http://localhost:3000
 cd apps/web && npm install && npm run dev
@@ -38,7 +45,7 @@ cd apps/web && npm install && npm run dev
 
 RahulCoolGram's run instructions are in [`apps/rahulcoolgram/README.md`](apps/rahulcoolgram/README.md).
 
-Requirements: [uv](https://docs.astral.sh/uv/) (installs Python 3.14 for you) and Node.js.
+Requirements: [uv](https://docs.astral.sh/uv/) (installs Python 3.14 for you), Docker and Node.js.
 
 ## Docs
 

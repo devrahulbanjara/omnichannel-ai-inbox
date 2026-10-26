@@ -156,7 +156,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 
 - **Goal:** data survives restarts.
 - **Why now:** step 2 loses everything.
-- **Build:** `infra/docker-compose.yml` with Postgres 16 (named volume, healthcheck). Hand-written SQL for `organization`, `contact`, `conversation`, `message` — **with `org_id` on every table** even though there is only one org. Split health into `GET /health/live` (process is up) and `GET /health/ready` (database reachable).
+- **Build:** `compose.yaml` with Postgres 18 (named volume, healthcheck). Tables for `organization`, `contact`, `conversation`, `message` — **with `org_id` on every table** even though there is only one org. Split health into `GET /health/live` (process is up) and `GET /health/ready` (database reachable).
 - **Learn:** Docker, images vs containers, volumes, Compose (§10); tables, primary and foreign keys, `NOT NULL`, `UNIQUE` (§3). Liveness vs readiness.
 - **Production bar:** readiness checks real dependencies; schema has constraints, not just columns.
 - **Done when:** rows survive an API restart; `docker compose down && up` keeps data; `/health/ready` returns 503 when Postgres is stopped.
@@ -426,9 +426,9 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 **Stage A**
 - [x] 1 API skeleton
 - [x] 2 In-memory inbox
-- [ ] 3 Postgres in Docker
-- [ ] 4 ORM and migrations
-- [ ] 5 Seed data
+- [x] 3 Postgres in Docker (built together with 4 and 5, straight to SQLAlchemy + Alembic)
+- [x] 4 ORM and migrations
+- [x] 5 Seed data (2 demo conversations; richer data with step 6)
 - [ ] 6 Dashboard reads the API
 - [ ] 7 Staff can reply
 - [ ] 8 Link RahulCoolGram to the API
