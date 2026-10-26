@@ -424,7 +424,7 @@ See `PRODUCTION_GRADE.md` §5 for why these tools were chosen (and why LangSmith
 - [x] 0 Workshop set up (ADRs, journal, PR flow; project board skipped for now)
 
 **Stage A**
-- [ ] 1 API skeleton
+- [x] 1 API skeleton
 - [ ] 2 In-memory inbox
 - [ ] 3 Postgres in Docker
 - [ ] 4 ORM and migrations
