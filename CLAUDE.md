@@ -42,6 +42,7 @@ docs/
   learn.md                   concept map in study order (ROADMAP refers to its § numbers)
   adr/                       Architecture Decision Records, one per real decision (0000-template.md is the format)
   JOURNAL.md                 learning log, one short entry per step
+  SENDER_TYPES.md            who writes a message: contact (customer), staff (store employee), ai (the agent)
   assets/rahulcoolgram.png   original RahulCoolGram logo
 
 apps/
