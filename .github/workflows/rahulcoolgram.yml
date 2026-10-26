@@ -1,17 +1,17 @@
-name: simulator
+name: rahulcoolgram
 
 on:
   push:
-    paths: ["apps/simulator/**", ".github/workflows/simulator.yml"]
+    paths: ["apps/rahulcoolgram/**", ".github/workflows/rahulcoolgram.yml"]
   pull_request:
-    paths: ["apps/simulator/**", ".github/workflows/simulator.yml"]
+    paths: ["apps/rahulcoolgram/**", ".github/workflows/rahulcoolgram.yml"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apps/simulator
+        working-directory: apps/rahulcoolgram
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
