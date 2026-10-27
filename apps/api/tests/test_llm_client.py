@@ -3,10 +3,18 @@ import asyncio
 import httpx2
 import openai
 import pytest
+from pydantic import SecretStr
 
+from app.core.config import settings
 from app.llm.client import LLMClient, LLMError
 
 HELLO = [{"role": "user", "content": "hi"}]
+
+
+@pytest.fixture(autouse=True)
+def fake_groq_key(monkeypatch):
+    """The openai client refuses an empty key, and CI has no .env."""
+    monkeypatch.setattr(settings, "groq_api_key", SecretStr("test-key"))
 
 
 def fake_client(status: int, body: dict) -> LLMClient:
