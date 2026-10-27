@@ -21,7 +21,8 @@ def webhook_body(customer_id="prabin", name="Prabin Gurung", message_id=None, te
 def count_webhook_events() -> int:
     async def count():
         async with SessionLocal() as session:
-            return await session.scalar(select(func.count()).select_from(WebhookEvent))
+            result = await session.execute(select(func.count()).select_from(WebhookEvent))
+            return result.scalar_one()
 
     return asyncio.run(count())
 

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
+from app.models import Conversation, Message
 from app.schemas.conversation import ConversationRead
 from app.schemas.error import ERROR_RESPONSES
 from app.schemas.message import MessageCreate, MessageRead
@@ -15,10 +16,10 @@ from app.services.organization import OrganizationService
 router = APIRouter(prefix="/conversations", tags=["inbox"], responses=ERROR_RESPONSES)
 
 
-@router.get("")
+@router.get("", response_model=list[ConversationRead])
 async def list_conversations(
     session: Annotated[AsyncSession, Depends(get_session)],
-) -> list[ConversationRead]:
+) -> list[Conversation]:
     organization_service = OrganizationService(session)
     conversation_service = ConversationService(session)
 
@@ -26,11 +27,11 @@ async def list_conversations(
     return await conversation_service.list_recent(org)
 
 
-@router.get("/{conversation_id}/messages")
+@router.get("/{conversation_id}/messages", response_model=list[MessageRead])
 async def list_messages(
     conversation_id: uuid.UUID,
     session: Annotated[AsyncSession, Depends(get_session)],
-) -> list[MessageRead]:
+) -> list[Message]:
     organization_service = OrganizationService(session)
     conversation_service = ConversationService(session)
     message_service = MessageService(session)
@@ -40,7 +41,7 @@ async def list_messages(
     return await message_service.list_for(conversation)
 
 
-@router.post("/{conversation_id}/messages", status_code=201)
+@router.post("/{conversation_id}/messages", status_code=201, response_model=MessageRead)
 async def send_staff_reply(
     conversation_id: uuid.UUID,
     body: MessageCreate,
@@ -53,7 +54,7 @@ async def send_staff_reply(
             "returns the first message instead of creating a second one",
         ),
     ] = None,
-) -> MessageRead:
+) -> Message:
     organization_service = OrganizationService(session)
     conversation_service = ConversationService(session)
     message_service = MessageService(session)
