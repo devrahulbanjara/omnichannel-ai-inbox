@@ -44,6 +44,8 @@ class MessageService:
         except IntegrityError:
             # The same key arrived twice at the same moment and the other request saved first.
             await self.session.rollback()
+            if idempotency_key is None:  # without a key, the failure has another cause
+                raise
             existing = await self._find_by_key(conversation_id, idempotency_key)
             if existing is None:
                 raise

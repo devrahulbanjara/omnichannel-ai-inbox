@@ -47,7 +47,9 @@ async def handle_unexpected_error(request: Request, exc: Exception) -> JSONRespo
 
 
 def add_error_handlers(app: FastAPI) -> None:
-    app.add_exception_handler(AppError, handle_app_error)
-    app.add_exception_handler(HTTPException, handle_http_error)
-    app.add_exception_handler(RequestValidationError, handle_validation_error)
-    app.add_exception_handler(Exception, handle_unexpected_error)
+    # Same as app.add_exception_handler(), whose type hints reject handlers that take a
+    # narrower exception type than Exception.
+    app.exception_handlers[AppError] = handle_app_error
+    app.exception_handlers[HTTPException] = handle_http_error
+    app.exception_handlers[RequestValidationError] = handle_validation_error
+    app.exception_handlers[Exception] = handle_unexpected_error
