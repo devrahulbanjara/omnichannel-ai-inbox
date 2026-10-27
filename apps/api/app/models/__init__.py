@@ -7,6 +7,8 @@ from app.models.contact_identity import ContactIdentity
 from app.models.conversation import Conversation
 from app.models.message import Message
 from app.models.organization import Organization
+from app.models.product import Product
+from app.models.product_variant import ProductVariant
 from app.models.webhook_event import WebhookEvent
 
 __all__ = [
@@ -17,5 +19,7 @@ __all__ = [
     "Conversation",
     "Message",
     "Organization",
+    "Product",
+    "ProductVariant",
     "WebhookEvent",
 ]

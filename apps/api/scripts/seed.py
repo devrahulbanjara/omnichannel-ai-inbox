@@ -2,9 +2,13 @@
 
 Contacts are RahulCoolGram's demo customers, linked by their RahulCoolGram ids, so new messages
 from those customers land in these conversations. The seeded history exists only in the inbox.
+Every demo store also gets its products (scripts/demo_catalog.py).
 """
 
 import asyncio
+import itertools
+import random
+import re
 import sys
 from datetime import timedelta
 
@@ -21,9 +25,12 @@ from app.models import (
     Conversation,
     Message,
     Organization,
+    Product,
+    ProductVariant,
 )
 from app.models.base import utc_now
 from app.models.enums import ChannelType, DeliveryStatus, Direction, SenderType
+from scripts.demo_catalog import DEMO_STORES, DemoStore
 
 # (RahulCoolGram id, name, username, [(minutes ago, sender, text)])
 DEMO_CHATS = [
@@ -58,10 +65,12 @@ SENDERS = {
     "contact": (Direction.IN, SenderType.CONTACT),
     "staff": (Direction.OUT, SenderType.STAFF),
 }
+STOCK_LEVELS = [0, 2, 5, 8, 12, 20, 35]  # 0 means out of stock
 
 
 async def seed_demo_data(session: AsyncSession) -> None:
-    org = Organization(name="Himal Luggage Co.")
+    """The first store with its chats, then the other stores. All stores get their products."""
+    org = Organization(name=DEMO_STORES[0].name)
     session.add(org)
     await session.flush()  # assigns org.id
     channel = Channel(org_id=org.id, type=ChannelType.RAHULCOOLGRAM, name="RahulCoolGram")
@@ -104,6 +113,46 @@ async def seed_demo_data(session: AsyncSession) -> None:
             conversation.last_message_at = at
             conversation.last_message_text = body
 
+    add_products(session, org, DEMO_STORES[0])
+    for demo_store in DEMO_STORES[1:]:
+        # Added after the first store, so the first store stays the oldest organization.
+        other_org = Organization(name=demo_store.name)
+        session.add(other_org)
+        await session.flush()
+        add_products(session, other_org, demo_store)
+
+
+def add_products(session: AsyncSession, org: Organization, demo_store: DemoStore) -> None:
+    """One variant per combination of option values, e.g. every color in every size."""
+    for number, demo_product in enumerate(demo_store.products, start=1):
+        product = Product(
+            org_id=org.id,
+            name=demo_product.name,
+            description=demo_product.description,
+            category=demo_product.category,
+        )
+        option_names = list(demo_product.options.keys())
+        value_lists = list(demo_product.options.values())
+
+        for values in itertools.product(*value_lists):
+            price = demo_product.price
+            sku_parts = [demo_store.sku_prefix, f"{number:02d}"]
+            for value in values:
+                price += demo_product.extra_price.get(value, 0)
+                sku_parts.append(re.sub(r"[^A-Z0-9]", "", value.upper()))  # "24 inch" -> "24INCH"
+            sku = "-".join(sku_parts)  # e.g. HLC-01-BLACK-24INCH
+            stock = random.Random(sku).choice(STOCK_LEVELS)  # same stock on every seed run
+
+            variant = ProductVariant(
+                org_id=org.id,
+                sku=sku,
+                options=dict(zip(option_names, values, strict=True)),
+                price=price,
+                stock=stock,
+            )
+            product.variants.append(variant)
+        session.add(product)
+
 
 async def main(reset: bool) -> None:
     async with SessionLocal() as session:
@@ -118,7 +167,11 @@ async def main(reset: bool) -> None:
             return
         await seed_demo_data(session)
         await session.commit()
-        logger.info("Seeded {} demo conversations", len(DEMO_CHATS))
+        logger.info(
+            "Seeded {} demo conversations and {} stores with products",
+            len(DEMO_CHATS),
+            len(DEMO_STORES),
+        )
 
 
 if __name__ == "__main__":

@@ -3,12 +3,13 @@ import asyncio
 import httpx2
 import openai
 import pytest
+from openai.types.chat import ChatCompletionMessageParam
 from pydantic import SecretStr
 
 from app.core.config import settings
 from app.llm.client import LLMClient, LLMError
 
-HELLO = [{"role": "user", "content": "hi"}]
+HELLO: list[ChatCompletionMessageParam] = [{"role": "user", "content": "hi"}]
 
 
 @pytest.fixture(autouse=True)
