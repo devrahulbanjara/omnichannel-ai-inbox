@@ -1,5 +1,15 @@
 def conversation_id_of(client, name: str) -> str:
-    return next(c["id"] for c in client.get("/conversations").json() if c["contact_name"] == name)
+    for conversation in client.get("/conversations").json():
+        if conversation["contact_name"] == name:
+            return conversation["id"]
+    raise AssertionError(f"No conversation with {name}")
+
+
+def message_texts(client, url: str) -> list[str]:
+    texts = []
+    for message in client.get(url).json():
+        texts.append(message["text"])
+    return texts
 
 
 def test_staff_reply_is_delivered_to_rahulcoolgram(client, rahulcoolgram):
@@ -33,7 +43,7 @@ def test_same_idempotency_key_creates_one_message(client, rahulcoolgram):
     second = client.post(url, json={"text": "Rs 5,900"}, headers=headers)
 
     assert first.json()["id"] == second.json()["id"]
-    texts = [m["text"] for m in client.get(url).json()]
+    texts = message_texts(client, url)
     assert texts.count("Rs 5,900") == 1
     assert len(rahulcoolgram.sent) == 1
 
@@ -45,5 +55,5 @@ def test_different_idempotency_keys_create_two_messages(client):
     client.post(url, json={"text": "Ok"}, headers={"Idempotency-Key": "reply-1"})
     client.post(url, json={"text": "Ok"}, headers={"Idempotency-Key": "reply-2"})
 
-    texts = [m["text"] for m in client.get(url).json()]
+    texts = message_texts(client, url)
     assert texts.count("Ok") == 2

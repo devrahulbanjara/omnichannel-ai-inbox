@@ -108,8 +108,10 @@ async def seed_demo_data(session: AsyncSession) -> None:
 async def main(reset: bool) -> None:
     async with SessionLocal() as session:
         if reset:
-            tables = ", ".join(table.name for table in Base.metadata.sorted_tables)
-            await session.execute(text(f"TRUNCATE {tables}"))
+            table_names = []
+            for table in Base.metadata.sorted_tables:
+                table_names.append(table.name)
+            await session.execute(text(f"TRUNCATE {', '.join(table_names)}"))
             logger.info("Deleted all data")
         elif await session.scalar(select(func.count()).select_from(Organization)):
             logger.info("Database already has data, nothing to seed. Use --reset to start over")

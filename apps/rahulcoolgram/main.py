@@ -49,7 +49,11 @@ def index() -> FileResponse:
 @app.get("/api/customers")
 def list_customers() -> list[dict]:
     customers = db.list_customers(settings.database_path)
-    return [{**c, "avatar": avatar_url(c["id"])} for c in customers]
+    result = []
+    for customer in customers:
+        customer["avatar"] = avatar_url(customer["id"])
+        result.append(customer)
+    return result
 
 
 @app.get("/api/store")
@@ -100,7 +104,11 @@ async def forward_to_omnichannel(customer: dict, message: dict) -> None:
     """POST the message to our omnichannel API. If that fails, keep going: the message is saved."""
     payload = {
         "message_id": message["id"],
-        "customer": {k: customer[k] for k in ("id", "name", "username")},
+        "customer": {
+            "id": customer["id"],
+            "name": customer["name"],
+            "username": customer["username"],
+        },
         "text": message["text"],
         "sent_at": message["sent_at"],
     }

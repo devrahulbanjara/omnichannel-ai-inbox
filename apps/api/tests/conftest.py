@@ -37,9 +37,11 @@ def demo_data():
     """Reset the database to the demo data before each test."""
 
     async def reset():
-        tables = ", ".join(table.name for table in Base.metadata.sorted_tables)
+        table_names = []
+        for table in Base.metadata.sorted_tables:
+            table_names.append(table.name)
         async with engine.begin() as conn:
-            await conn.execute(text(f"TRUNCATE {tables}"))
+            await conn.execute(text(f"TRUNCATE {', '.join(table_names)}"))
         async with SessionLocal() as session:
             await seed_demo_data(session)
             await session.commit()

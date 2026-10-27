@@ -69,7 +69,8 @@ def test_customer_message_is_saved_and_forwarded(client, omnichannel):
     assert message["sender"] == "customer"
 
     history = client.get("/api/customers/bikash/messages").json()
-    assert [m["text"] for m in history] == ["dai yo kati ho?"]
+    assert len(history) == 1
+    assert history[0]["text"] == "dai yo kati ho?"
 
     [request] = omnichannel.requests
     assert str(request.url) == settings.omnichannel_webhook_url

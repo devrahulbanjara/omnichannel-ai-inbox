@@ -13,7 +13,9 @@ def test_list_conversations_newest_first(client):
     response = client.get("/conversations")
 
     assert response.status_code == 200
-    names = [c["contact_name"] for c in response.json()]
+    names = []
+    for conversation in response.json():
+        names.append(conversation["contact_name"])
     assert names == ["Anisha Karki", "Sujan Maharjan", "Bikash Thapa"]
 
 
@@ -97,6 +99,6 @@ def test_reply_is_still_there_in_a_new_session(client):
     conversation_id = first_conversation_id(client)
     client.post(f"/conversations/{conversation_id}/messages", json={"text": "Saved?"})
 
-    texts = [m["text"] for m in client.get(f"/conversations/{conversation_id}/messages").json()]
+    messages = client.get(f"/conversations/{conversation_id}/messages").json()
 
-    assert texts[-1] == "Saved?"
+    assert messages[-1]["text"] == "Saved?"

@@ -34,7 +34,9 @@ def test_organization_is_the_seeded_store(client):
 def test_other_stores_conversations_are_invisible(client):
     other_id = add_other_store_conversation()
 
-    names = [c["contact_name"] for c in client.get("/conversations").json()]
+    names = []
+    for conversation in client.get("/conversations").json():
+        names.append(conversation["contact_name"])
     response = client.get(f"/conversations/{other_id}/messages")
 
     assert "Other Customer" not in names

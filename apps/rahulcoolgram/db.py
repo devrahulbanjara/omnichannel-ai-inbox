@@ -57,7 +57,10 @@ def init_db(path: str) -> None:
 def list_customers(path: str) -> list[dict]:
     with connect(path) as conn:
         rows = conn.execute("SELECT * FROM customers ORDER BY rowid").fetchall()
-    return [dict(row) for row in rows]
+    result = []
+    for row in rows:
+        result.append(dict(row))
+    return result
 
 
 def get_customer(path: str, customer_id: str) -> dict | None:
@@ -72,7 +75,10 @@ def list_messages(path: str, customer_id: str) -> list[dict]:
             "SELECT * FROM messages WHERE customer_id = ? ORDER BY sent_at, rowid",
             (customer_id,),
         ).fetchall()
-    return [dict(row) for row in rows]
+    result = []
+    for row in rows:
+        result.append(dict(row))
+    return result
 
 
 def add_message(path: str, customer_id: str, sender: str, text: str) -> dict:

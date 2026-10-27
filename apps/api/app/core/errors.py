@@ -28,10 +28,12 @@ async def handle_http_error(request: Request, exc: HTTPException) -> JSONRespons
 
 
 async def handle_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
-    details = [
-        FieldError(field=".".join(str(part) for part in err["loc"]), message=err["msg"])
-        for err in exc.errors()
-    ]
+    details = []
+    for err in exc.errors():
+        parts = []
+        for part in err["loc"]:  # e.g. ("body", "text") -> "body.text"
+            parts.append(str(part))
+        details.append(FieldError(field=".".join(parts), message=err["msg"]))
     return error_response(422, "validation_error", "The request is not valid", details=details)
 
 
