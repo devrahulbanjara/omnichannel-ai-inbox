@@ -2,6 +2,7 @@ import { Check, CheckCheck, Clock, Info, Luggage, ShoppingCart, TriangleAlert } 
 import { AiMark } from "@/components/ui/ai-mark"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Button } from "@/components/ui/button"
+import { Markdown } from "@/components/ui/markdown"
 import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker"
 import { Message, MessageAvatar, MessageContent, MessageFooter } from "@/components/ui/message"
 import { Tag } from "@/components/ui/tag"
@@ -88,7 +89,10 @@ export function MessageItem({ message: m }: { message: MessageT }) {
             variant={fromAI ? "ai" : outgoing ? "brand" : "incoming"}
             className="max-w-[min(80%,34rem)]"
           >
-            <BubbleContent className="rounded-2xl px-3.5 py-2.5">{m.text}</BubbleContent>
+            <BubbleContent className="rounded-2xl px-3.5 py-2.5">
+              {/* Customer text is untrusted, so it stays plain; store replies may use markdown. */}
+              {outgoing ? <Markdown text={m.text} /> : <p className="whitespace-pre-wrap">{m.text}</p>}
+            </BubbleContent>
           </Bubble>
         )}
         <MessageFooter className="gap-1.5 px-1">
