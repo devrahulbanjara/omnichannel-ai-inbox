@@ -26,8 +26,11 @@ class SearchProductsTool(Tool):
     args_model = SearchProductsArgs
 
     async def run(self, arguments: str, context: ToolContext) -> str:
+
         args = SearchProductsArgs.model_validate_json(arguments)
+
         product_service = ProductService(context.session)
+
         matches = await product_service.search(
             context.org,
             args.query,
@@ -35,15 +38,20 @@ class SearchProductsTool(Tool):
             in_stock_only=args.in_stock_only,
             limit=MAX_RESULTS,
         )
+
         if not matches:
             return "No products matched. Try fewer or more general words."
+
         return self.format_matches(matches)
 
     @staticmethod
     def format_matches(matches: list[tuple[Product, ProductVariant]]) -> str:
         """One heading per product, one line per variant."""
+
         lines = []
+
         previous_product = None
+
         for product, variant in matches:
             if product is not previous_product:
                 lines.append(f"{product.name} ({product.category}): {product.description}")
@@ -58,4 +66,5 @@ class SearchProductsTool(Tool):
 
         if len(matches) == MAX_RESULTS:
             lines.append(f"Showing the first {MAX_RESULTS} variants. Add words to narrow it.")
+
         return "\n".join(lines)
