@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.enums import ConversationStatus
+from app.models.enums import ConversationOwner, ConversationStatus
 
 
 class ConversationRead(BaseModel):
@@ -30,3 +30,11 @@ class ConversationRead(BaseModel):
     unread_count: Annotated[
         int, Field(description="Customer messages no staff member has seen yet")
     ]
+    owner: Annotated[
+        ConversationOwner,
+        Field(description="Who answers the customer: the AI agent or staff. Only the owner sends"),
+    ]
+
+
+class OwnerChange(BaseModel):
+    owner: Annotated[ConversationOwner, Field(description="The new owner of the conversation")]

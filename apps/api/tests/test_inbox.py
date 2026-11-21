@@ -2,6 +2,8 @@
 
 import uuid
 
+from tests.test_replies import assign_to_staff
+
 MISSING_ID = str(uuid.uuid4())  # valid UUID with no matching conversation
 
 
@@ -38,6 +40,7 @@ def test_list_messages_of_unknown_conversation_is_404(client):
 
 def test_staff_reply_is_saved_as_outgoing(client):
     conversation_id = first_conversation_id(client)
+    assign_to_staff(client, conversation_id)
 
     response = client.post(
         f"/conversations/{conversation_id}/messages", json={"text": "Yes, it's Rs 4,500."}
@@ -55,6 +58,7 @@ def test_staff_reply_is_saved_as_outgoing(client):
 def test_reply_moves_conversation_to_the_top(client):
     older_id = client.get("/conversations").json()[1]["id"]
 
+    assign_to_staff(client, older_id)
     client.post(f"/conversations/{older_id}/messages", json={"text": "Hi Sujan!"})
 
     assert first_conversation_id(client) == older_id
@@ -77,6 +81,7 @@ def test_empty_reply_is_rejected_with_422(client):
 def test_client_cannot_choose_the_sender(client):
     """Extra body fields are ignored; the server sets direction and sender."""
     conversation_id = first_conversation_id(client)
+    assign_to_staff(client, conversation_id)
 
     response = client.post(
         f"/conversations/{conversation_id}/messages",
@@ -97,6 +102,7 @@ def test_malformed_conversation_id_is_rejected_with_422(client):
 def test_reply_is_still_there_in_a_new_session(client):
     """A reply persists across sessions."""
     conversation_id = first_conversation_id(client)
+    assign_to_staff(client, conversation_id)
     client.post(f"/conversations/{conversation_id}/messages", json={"text": "Saved?"})
 
     messages = client.get(f"/conversations/{conversation_id}/messages").json()

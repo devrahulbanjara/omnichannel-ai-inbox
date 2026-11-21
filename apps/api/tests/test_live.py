@@ -1,3 +1,4 @@
+from tests.test_replies import assign_to_staff
 from tests.test_webhooks import KEY, webhook_body
 
 
@@ -13,6 +14,7 @@ def test_dashboard_hears_about_a_new_customer_message(client):
 
 def test_dashboard_hears_about_a_reply_and_its_delivery(client):
     conversation_id = client.get("/conversations").json()[0]["id"]
+    assign_to_staff(client, conversation_id)
 
     with client.websocket_connect("/live") as live:
         client.post(f"/conversations/{conversation_id}/messages", json={"text": "Hi"})

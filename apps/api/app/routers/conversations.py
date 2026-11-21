@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
 from app.models import Conversation, Message
-from app.schemas.conversation import ConversationRead
+from app.schemas.conversation import ConversationRead, OwnerChange
 from app.schemas.error import ERROR_RESPONSES
 from app.schemas.message import MessageCreate, MessageRead
 from app.services.conversation import ConversationService
@@ -38,6 +38,21 @@ async def mark_conversation_read(
     org = await organization_service.get_current()
     conversation = await conversation_service.get(org, conversation_id)
     return await conversation_service.mark_read(conversation)
+
+
+@router.put("/{conversation_id}/owner", response_model=ConversationRead)
+async def set_conversation_owner(
+    conversation_id: uuid.UUID,
+    body: OwnerChange,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> Conversation:
+    """Give the conversation to the AI or to staff. Only the owner can send messages."""
+    organization_service = OrganizationService(session)
+    conversation_service = ConversationService(session)
+
+    org = await organization_service.get_current()
+    conversation = await conversation_service.get(org, conversation_id)
+    return await conversation_service.set_owner(conversation, body.owner)
 
 
 @router.get("/{conversation_id}/messages", response_model=list[MessageRead])

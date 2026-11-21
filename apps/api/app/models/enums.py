@@ -8,6 +8,13 @@ class ConversationStatus(StrEnum):
     RESOLVED = "resolved"
 
 
+class ConversationOwner(StrEnum):
+    """Who answers the customer. Only the owner can send messages."""
+
+    AI = "ai"  # the AI agent replies
+    STAFF = "staff"  # any store employee replies; the agent stays quiet
+
+
 class Direction(StrEnum):
     IN = "in"  # from the customer
     OUT = "out"  # to the customer
