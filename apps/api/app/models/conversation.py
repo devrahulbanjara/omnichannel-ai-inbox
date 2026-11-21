@@ -7,7 +7,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, utc_now
 from app.models.channel import Channel
 from app.models.customer import Customer
-from app.models.enums import ConversationStatus, DeliveryStatus, Direction, SenderType
+from app.models.enums import (
+    ConversationOwner,
+    ConversationStatus,
+    DeliveryStatus,
+    Direction,
+    SenderType,
+)
 from app.models.message import Message
 
 
@@ -15,13 +21,19 @@ class Conversation(Base):
     """One thread between a customer and the store, on one channel."""
 
     __tablename__ = "conversations"
-    __table_args__ = (CheckConstraint("status IN ('open', 'resolved')", name="status_valid"),)
+    __table_args__ = (
+        CheckConstraint("status IN ('open', 'resolved')", name="status_valid"),
+        CheckConstraint("owner IN ('ai', 'staff')", name="owner_valid"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid7)
     org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id"), index=True)
     customer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("customers.id"), index=True)
     channel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("channels.id"), index=True)
     status: Mapped[str] = mapped_column(default=ConversationStatus.OPEN)
+    owner: Mapped[str] = mapped_column(  # ConversationOwner
+        default=ConversationOwner.AI, server_default=ConversationOwner.AI
+    )
     last_message_at: Mapped[datetime] = mapped_column(index=True)
     last_message_text: Mapped[str | None]  # shown as the preview line in the inbox list
     # Customer messages no staff member has seen yet. Shared by all staff of the store.

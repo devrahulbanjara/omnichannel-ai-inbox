@@ -61,9 +61,12 @@ class FakeLLM(LLMClient):
         self.answer = "Thanks for your message!"
         self.down = False
         self.calls: list[list] = []
+        self.while_thinking = None  # async function run in the middle of a call
 
     async def generate(self, messages, tools=None, prompt=None) -> LLMResult:
         self.calls.append(list(messages))
+        if self.while_thinking is not None:
+            await self.while_thinking()
         if self.down:
             raise LLMError("fake model is down")
         return LLMResult(self.answer, [], 0, 0, 0, "fake")

@@ -1,6 +1,7 @@
 export type ChannelType = "rahulcoolgram" | "instagram" | "messenger" | "whatsapp" | "telegram" | "web" | "email"
 
-export type Assignee = { type: "none" } | { type: "ai" } | { type: "staff"; name: string; isMe: boolean }
+// Who answers the customer. "staff" means any store employee; there are no logins yet.
+export type Assignee = { type: "ai" } | { type: "staff" }
 
 export type LeadStage = "new" | "interested" | "ordering" | "won" | "lost"
 

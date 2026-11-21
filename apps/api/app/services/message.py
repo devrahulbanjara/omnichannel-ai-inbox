@@ -1,5 +1,6 @@
 import uuid
 
+from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,8 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.channels.base import DeliveryError
 from app.channels.registry import ADAPTERS
 from app.core.events import events
+from app.core.exceptions import ConflictError
 from app.models import Conversation, CustomerIdentity, Message
-from app.models.enums import DeliveryStatus
+from app.models.enums import ConversationOwner, DeliveryStatus
+from app.services.conversation import ConversationService
 
 
 class MessageService:
@@ -36,6 +39,9 @@ class MessageService:
             if existing:
                 return existing
 
+        conversation_service = ConversationService(self.session)
+        if await conversation_service.lock_owner(conversation) != ConversationOwner.STAFF:
+            raise ConflictError("The AI is handling this conversation. Assign it to staff first")
         message = conversation.reply_as_staff(text)
         message.idempotency_key = idempotency_key
         self.session.add(message)
@@ -55,8 +61,15 @@ class MessageService:
         await self._deliver(conversation, message)
         return message
 
-    async def send_ai_reply(self, conversation: Conversation, text: str) -> Message:
-        """Save the AI agent's reply, then deliver it."""
+    async def send_ai_reply(self, conversation: Conversation, text: str) -> Message | None:
+        """Save the AI agent's reply, then deliver it. Returns None, sending nothing, if staff
+        took the conversation over while the agent was answering."""
+        # Staff may have taken the conversation over while the agent was answering.
+        conversation_service = ConversationService(self.session)
+        if await conversation_service.lock_owner(conversation) != ConversationOwner.AI:
+            await self.session.commit()  # nothing changed; releases the lock
+            logger.info("AI answer dropped: staff took over conversation {}", conversation.id)
+            return None
         message = conversation.reply_as_ai(text)
         self.session.add(message)
         await self.session.commit()  # message and conversation update in one transaction

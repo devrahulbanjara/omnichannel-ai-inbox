@@ -15,6 +15,11 @@ class NotFoundError(AppError):
     code = "not_found"
 
 
+class ConflictError(AppError):
+    status_code = 409
+    code = "conflict"
+
+
 class UnauthorizedError(AppError):
     status_code = 401
     code = "unauthorized"

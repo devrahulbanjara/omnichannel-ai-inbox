@@ -16,8 +16,7 @@ import { AssigneeTag, preview } from "./shared"
 
 const FILTERS = {
   all: () => true,
-  mine: (c: Conversation) => c.assignee.type === "staff" && c.assignee.isMe,
-  unassigned: (c: Conversation) => c.assignee.type === "none",
+  staff: (c: Conversation) => c.assignee.type === "staff",
   ai: (c: Conversation) => c.assignee.type === "ai",
   human: (c: Conversation) => c.needsHuman,
 } as const
@@ -74,8 +73,7 @@ export function InboxList({
         <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
           <TabsList className="glass-raised w-full">
             <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="mine">Mine</TabsTrigger>
-            <TabsTrigger value="unassigned">Open</TabsTrigger>
+            <TabsTrigger value="staff">Staff</TabsTrigger>
             <TabsTrigger value="ai">AI</TabsTrigger>
             <TabsTrigger value="human">
               Human

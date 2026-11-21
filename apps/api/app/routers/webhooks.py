@@ -8,6 +8,7 @@ from app.agent.loop import Agent, get_agent
 from app.core.config import settings
 from app.core.database import get_session
 from app.core.exceptions import UnauthorizedError
+from app.models.enums import ConversationOwner
 from app.schemas.error import ERROR_RESPONSES
 from app.schemas.webhook import RahulCoolGramWebhook, WebhookReceipt
 from app.services.agent_reply import AgentReplyService
@@ -34,6 +35,9 @@ async def receive_rahulcoolgram(
     conversation = await webhook_service.receive_rahulcoolgram(body)
     if conversation is None:
         return WebhookReceipt(status="duplicate")
+
+    if conversation.owner != ConversationOwner.AI:
+        return WebhookReceipt(status="saved")  # staff answers this conversation
 
     # The agent runs inside the request, so RahulCoolGram waits for the model's answer.
     agent_reply_service = AgentReplyService(session, agent)

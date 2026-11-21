@@ -4,12 +4,14 @@ import {
   ApiError,
   type ApiConversation,
   type ApiMessage,
+  type ApiOwner,
   fetchConversations,
   fetchMessages,
   fetchOrganization,
   LIVE_URL,
   markRead,
   sendReply,
+  setOwner,
 } from "./api"
 import { conversationFromApi, messageFromApi } from "./from-api"
 
@@ -48,6 +50,15 @@ export function useSendReply() {
       queryClient.invalidateQueries({ queryKey: ["messages", conversationId] })
       queryClient.invalidateQueries({ queryKey: ["conversations"] })
     },
+  })
+}
+
+export function useSetOwner() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ conversationId, owner }: { conversationId: string; owner: ApiOwner }) =>
+      setOwner(conversationId, owner),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["conversations"] }),
   })
 }
 

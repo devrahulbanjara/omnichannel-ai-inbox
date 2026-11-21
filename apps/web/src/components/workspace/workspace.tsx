@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { ApiError } from "@/lib/api"
-import { useConversations, useLiveUpdates, useMarkRead, useMessages, useSendReply } from "@/lib/queries"
+import { useConversations, useLiveUpdates, useMarkRead, useMessages, useSendReply, useSetOwner } from "@/lib/queries"
 import type { Assignee, Conversation } from "@/lib/types"
 import { AppRail } from "./app-rail"
 import { ContextPanel } from "./context-panel"
@@ -74,15 +74,12 @@ function WorkspaceScreen({ conversations }: { conversations: Conversation[] }) {
   const [selectedId, setSelectedId] = useState(conversations[0].id)
   // The conversation a staff member clicked. The one shown on first load is not counted as read.
   const [openedId, setOpenedId] = useState<string | null>(null)
-  // Assignment has no API yet, so it is kept in this browser only.
-  const [assignees, setAssignees] = useState<Record<string, Assignee>>({})
   const [mobileView, setMobileView] = useState<"list" | "thread" | "details">("list")
   const isDesktop = useMedia("(min-width: 1024px)")
   const isWide = useMedia("(min-width: 1280px)")
   const [detailsOpen, setDetailsOpen] = useState(false)
 
-  const items = conversations.map((c) => (assignees[c.id] ? { ...c, assignee: assignees[c.id] } : c))
-  const current = items.find((c) => c.id === selectedId) ?? items[0]
+  const current = conversations.find((c) => c.id === selectedId) ?? conversations[0]
   const { data: messages = [] } = useMessages(current.id)
   const selected = { ...current, messages }
   const sendReply = useSendReply()
@@ -96,7 +93,8 @@ function WorkspaceScreen({ conversations }: { conversations: Conversation[] }) {
     if (pageActive && current.id === openedId && current.unread > 0) markRead(current.id)
   }, [pageActive, current.id, current.unread, openedId, markRead])
 
-  const assign = (assignee: Assignee) => setAssignees((all) => ({ ...all, [selected.id]: assignee }))
+  const setOwner = useSetOwner()
+  const assign = (owner: Assignee["type"]) => setOwner.mutate({ conversationId: selected.id, owner })
 
   const send = (text: string) =>
     sendReply.mutate({ conversationId: selected.id, text, idempotencyKey: crypto.randomUUID() })
@@ -108,7 +106,7 @@ function WorkspaceScreen({ conversations }: { conversations: Conversation[] }) {
     setMobileView("thread")
   }
 
-  const list = <InboxList conversations={items} selectedId={selected.id} onSelect={select} />
+  const list = <InboxList conversations={conversations} selectedId={selected.id} onSelect={select} />
   const thread = (
     <ConversationView
       conversation={selected}

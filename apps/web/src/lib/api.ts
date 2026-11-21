@@ -39,6 +39,15 @@ export const fetchMessages = (conversationId: string) =>
   request<ApiMessage[]>(`/conversations/${conversationId}/messages`)
 
 // Marks the conversation as seen for all staff. Safe to repeat.
+export type ApiOwner = Schemas["ConversationOwner"]
+
+export const setOwner = (conversationId: string, owner: ApiOwner) =>
+  request<ApiConversation>(`/conversations/${conversationId}/owner`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ owner }),
+  })
+
 export const markRead = (conversationId: string) =>
   request<ApiConversation>(`/conversations/${conversationId}/read`, { method: "POST" })
 

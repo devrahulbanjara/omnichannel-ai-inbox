@@ -5,6 +5,12 @@ def conversation_id_of(client, name: str) -> str:
     raise AssertionError(f"No conversation with {name}")
 
 
+def assign_to_staff(client, conversation_id: str) -> None:
+    """Only the owner can send, and conversations start owned by the AI."""
+    response = client.put(f"/conversations/{conversation_id}/owner", json={"owner": "staff"})
+    assert response.status_code == 200
+
+
 def message_texts(client, url: str) -> list[str]:
     texts = []
     for message in client.get(url).json():
@@ -14,6 +20,7 @@ def message_texts(client, url: str) -> list[str]:
 
 def test_staff_reply_is_delivered_to_rahulcoolgram(client, rahulcoolgram):
     conversation_id = conversation_id_of(client, "Sujan Maharjan")
+    assign_to_staff(client, conversation_id)
 
     response = client.post(f"/conversations/{conversation_id}/messages", json={"text": "Yes!"})
 
@@ -25,6 +32,7 @@ def test_staff_reply_is_delivered_to_rahulcoolgram(client, rahulcoolgram):
 def test_reply_is_marked_failed_when_rahulcoolgram_is_down(client, rahulcoolgram):
     rahulcoolgram.down = True
     conversation_id = conversation_id_of(client, "Sujan Maharjan")
+    assign_to_staff(client, conversation_id)
 
     response = client.post(f"/conversations/{conversation_id}/messages", json={"text": "Yes!"})
 
@@ -36,6 +44,7 @@ def test_reply_is_marked_failed_when_rahulcoolgram_is_down(client, rahulcoolgram
 
 def test_same_idempotency_key_creates_one_message(client, rahulcoolgram):
     conversation_id = conversation_id_of(client, "Sujan Maharjan")
+    assign_to_staff(client, conversation_id)
     url = f"/conversations/{conversation_id}/messages"
     headers = {"Idempotency-Key": "reply-1"}
 
@@ -50,6 +59,7 @@ def test_same_idempotency_key_creates_one_message(client, rahulcoolgram):
 
 def test_different_idempotency_keys_create_two_messages(client):
     conversation_id = conversation_id_of(client, "Sujan Maharjan")
+    assign_to_staff(client, conversation_id)
     url = f"/conversations/{conversation_id}/messages"
 
     client.post(url, json={"text": "Ok"}, headers={"Idempotency-Key": "reply-1"})

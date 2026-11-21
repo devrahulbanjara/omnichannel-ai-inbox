@@ -25,6 +25,7 @@ class ErrorResponse(BaseModel):
 # For APIRouter(responses=...): documents the error shape in the OpenAPI schema.
 ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
     404: {"model": ErrorResponse, "description": "Not found"},
+    409: {"model": ErrorResponse, "description": "Conflicts with the current state"},
     422: {"model": ErrorResponse, "description": "The request is not valid"},
     500: {"model": ErrorResponse, "description": "Unexpected server error"},
 }
