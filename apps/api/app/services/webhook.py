@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.events import events
 from app.core.exceptions import NotFoundError
-from app.models import Channel, Contact, ContactIdentity, WebhookEvent
+from app.models import Channel, Customer, CustomerIdentity, WebhookEvent
 from app.models.base import utc_now
 from app.models.enums import ChannelType
 from app.schemas.webhook import RahulCoolGramCustomer, RahulCoolGramWebhook
@@ -12,7 +12,7 @@ from app.services.conversation import ConversationService
 
 
 class WebhookService:
-    """Turns channel webhooks into contacts, conversations and messages."""
+    """Turns channel webhooks into customers, conversations and messages."""
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -37,9 +37,9 @@ class WebhookService:
         if event_id is None:
             return False
 
-        contact = await self._get_or_create_contact(channel, body.customer)
-        conversation = await ConversationService(self.session).get_or_start(contact, channel)
-        self.session.add(conversation.receive_from_contact(body.text, body.message_id))
+        customer = await self._get_or_create_customer(channel, body.customer)
+        conversation = await ConversationService(self.session).get_or_start(customer, channel)
+        self.session.add(conversation.receive_from_customer(body.text, body.message_id))
         await self.session.execute(
             update(WebhookEvent).where(WebhookEvent.id == event_id).values(processed_at=utc_now())
         )
@@ -59,28 +59,28 @@ class WebhookService:
             raise NotFoundError("No RahulCoolGram channel exists. Run the seed script")
         return channel
 
-    async def _get_or_create_contact(
-        self, channel: Channel, customer: RahulCoolGramCustomer
-    ) -> Contact:
+    async def _get_or_create_customer(
+        self, channel: Channel, account: RahulCoolGramCustomer
+    ) -> Customer:
         identity = await self.session.scalar(
-            select(ContactIdentity).where(
-                ContactIdentity.channel_id == channel.id,
-                ContactIdentity.external_user_id == customer.id,
+            select(CustomerIdentity).where(
+                CustomerIdentity.channel_id == channel.id,
+                CustomerIdentity.external_user_id == account.id,
             )
         )
         if identity is not None:
-            return await self.session.get_one(Contact, identity.contact_id)
+            return await self.session.get_one(Customer, identity.customer_id)
 
-        contact = Contact(org_id=channel.org_id, name=customer.name)
-        self.session.add(contact)
-        await self.session.flush()  # assigns contact.id
+        customer = Customer(org_id=channel.org_id, name=account.name)
+        self.session.add(customer)
+        await self.session.flush()  # assigns customer.id
         self.session.add(
-            ContactIdentity(
+            CustomerIdentity(
                 org_id=channel.org_id,
-                contact_id=contact.id,
+                customer_id=customer.id,
                 channel_id=channel.id,
-                external_user_id=customer.id,
-                username=customer.username,
+                external_user_id=account.id,
+                username=account.username,
             )
         )
-        return contact
+        return customer

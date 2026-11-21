@@ -48,14 +48,14 @@ docs/
   learn.md                   concept map in study order (ROADMAP refers to its section numbers)
   adr/                       Architecture Decision Records: 0001 stack · 0002 RahulCoolGram · 0003 API structure · 0004 RahulCoolGram link (0000-template.md is the format)
   JOURNAL.md                 learning log, one short entry per step
-  SENDER_TYPES.md            who writes a message: contact (customer), staff (store employee), ai (the agent)
+  SENDER_TYPES.md            who writes a message: customer (customer), staff (store employee), ai (the agent)
   assets/rahulcoolgram.png   original RahulCoolGram logo
 
 apps/
   api/                       FastAPI backend
     app/main.py              create_app(): wires logging, error handlers, middleware, routers (entrypoint `app.main:app`)
     app/core/                config.py (settings) · database.py (engine, sessions) · logging.py (loguru) · middleware.py (request id) · errors.py (error shape) · exceptions.py (AppError, NotFoundError, UnauthorizedError) · events.py (EventHub for live updates)
-    app/models/              SQLAlchemy tables, one per file: organization, channel, contact, contact_identity, conversation, message, webhook_event · base.py (Base) · enums.py
+    app/models/              SQLAlchemy tables, one per file: organization, channel, customer, customer_identity, conversation, message, webhook_event · base.py (Base) · enums.py
     app/schemas/             Pydantic API shapes: conversation, message, organization, webhook (RahulCoolGram body), error (ErrorResponse + ERROR_RESPONSES)
     app/services/            business logic as classes (Organization, Conversation, Message, Webhook services); take a session in __init__, raise AppError subclasses
     app/channels/            ChannelAdapter interface (base.py), RahulCoolGramAdapter, registry.py (channel type → adapter)
@@ -94,7 +94,7 @@ From BLUEPRINT #1. They apply in every step.
 
 1. **The LLM chooses, code decides.** Prices, totals, stock, IDs and statuses come from the database or tool results, never from model text.
 2. **One service, many callers.** REST routes and AI tools are thin adapters over the same application service.
-3. **The server injects identity** (`org_id`, `conversation_id`, `contact_id`, actor). The model never supplies it.
+3. **The server injects identity** (`org_id`, `conversation_id`, `customer_id`, actor). The model never supplies it.
 4. **Every write is idempotent.** Webhooks retry; customers say "yes" twice.
 5. **Every state change emits an event.**
 6. **Everything the AI does is recorded:** runs, tool calls, tokens, cost.

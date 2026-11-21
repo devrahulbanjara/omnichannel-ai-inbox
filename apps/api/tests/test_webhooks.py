@@ -49,11 +49,11 @@ def test_first_message_from_a_new_customer_starts_a_conversation(client):
 
     assert response.json() == {"status": "saved"}
     newest = client.get("/conversations").json()[0]
-    assert newest["contact_name"] == "Prabin Gurung"
+    assert newest["customer_name"] == "Prabin Gurung"
     assert newest["channel"] == "rahulcoolgram"
     assert newest["last_message_text"] == "Namaste"
     [message] = client.get(f"/conversations/{newest['id']}/messages").json()
-    assert message["sender_type"] == "contact"
+    assert message["sender_type"] == "customer"
     assert message["direction"] == "in"
 
 
@@ -68,7 +68,7 @@ def test_known_customer_continues_their_conversation(client):
 
     conversations = client.get("/conversations").json()
     assert len(conversations) == before
-    assert conversations[0]["contact_name"] == "Sujan Maharjan"
+    assert conversations[0]["customer_name"] == "Sujan Maharjan"
     assert conversations[0]["last_message_text"] == "Still there?"
 
 

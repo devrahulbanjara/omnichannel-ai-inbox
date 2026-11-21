@@ -40,6 +40,6 @@ export function preview(c: Conversation) {
   if (!last) return c.lastMessageText ?? ""
   if (last.kind === "products") return `Shared ${last.items.length} products`
   if (last.kind === "event") return last.text
-  const prefix = { contact: "", ai: "AI: ", staff: "Team: " }[last.sender]
+  const prefix = { customer: "", ai: "AI: ", staff: "Team: " }[last.sender]
   return prefix + last.text
 }

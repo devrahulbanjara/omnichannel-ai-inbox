@@ -8,7 +8,7 @@ import { npr } from "@/lib/channels"
 import { paymentTone, priorityTone } from "@/lib/tones"
 import type { Conversation } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { ContactAvatar } from "./contact-avatar"
+import { CustomerAvatar } from "./customer-avatar"
 import { LEAD_STAGE } from "./shared"
 
 function Section({ title, items, children }: { title: string; items?: unknown[]; children: React.ReactNode }) {
@@ -47,9 +47,9 @@ export function ContextPanel({
             <X />
           </Button>
         )}
-        <ContactAvatar name={c.contact.name} channel={c.channel} size="lg" />
-        <p className="text-title mt-3">{c.contact.name}</p>
-        <p className="text-caption">{c.contact.handle}</p>
+        <CustomerAvatar name={c.customer.name} channel={c.channel} size="lg" />
+        <p className="text-title mt-3">{c.customer.name}</p>
+        <p className="text-caption">{c.customer.handle}</p>
 
         <Tile className="mt-4 w-full space-y-2 p-3 text-left">
           <div className="flex items-center justify-between text-xs">
@@ -66,16 +66,16 @@ export function ContextPanel({
         </Tile>
       </div>
 
-      <Section title="Contact" items={c.contact.phone || c.contact.address ? undefined : []}>
+      <Section title="Customer" items={c.customer.phone || c.customer.address ? undefined : []}>
         <div className="space-y-1.5 text-sm [&_svg]:size-3.5 [&_svg]:text-muted-foreground">
-          {c.contact.phone && (
+          {c.customer.phone && (
             <p className="flex items-center gap-2">
-              <Phone /> {c.contact.phone}
+              <Phone /> {c.customer.phone}
             </p>
           )}
-          {c.contact.address && (
+          {c.customer.address && (
             <p className="flex items-center gap-2">
-              <MapPin /> {c.contact.address}
+              <MapPin /> {c.customer.address}
             </p>
           )}
         </div>

@@ -155,7 +155,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 
 - **Goal:** data survives restarts.
 - **Why now:** step 2 loses everything.
-- **Build:** `docker-compose.yaml` with Postgres 18 (named volume, healthcheck). Tables for `organization`, `contact`, `conversation`, `message` — **with `org_id` on every table** even though there is only one org. Split health into `GET /health/live` (process is up) and `GET /health/ready` (database reachable).
+- **Build:** `docker-compose.yaml` with Postgres 18 (named volume, healthcheck). Tables for `organization`, `customer`, `conversation`, `message` — **with `org_id` on every table** even though there is only one org. Split health into `GET /health/live` (process is up) and `GET /health/ready` (database reachable).
 - **Learn:** Docker, images vs containers, volumes, Compose (#10); tables, primary and foreign keys, `NOT NULL`, `UNIQUE` (#3). Liveness vs readiness.
 - **Production bar:** readiness checks real dependencies; schema has constraints, not just columns.
 - **Done when:** rows survive an API restart; `docker compose down && up` keeps data; `/health/ready` returns 503 when Postgres is stopped.
@@ -174,7 +174,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 ### Step 5 · Seed data
 
 - **Goal:** realistic data to look at.
-- **Build:** a `seed` command: demo org *Himal Luggage Co.*, 5 contacts, conversations with messages (reuse the dashboard's `mock-data.ts` content).
+- **Build:** a `seed` command: demo org *Himal Luggage Co.*, 5 customers, conversations with messages (reuse the dashboard's `mock-data.ts` content).
 - **Learn:** transactions (all-or-nothing seed), idempotent scripts (running twice doesn't duplicate).
 - **Done when:** `uv run python -m scripts.seed` on an empty DB fills it; running it again changes nothing.
 - **Interview:** "What does idempotent mean? Give an example from your project."
@@ -198,7 +198,7 @@ Features are added to RahulCoolGram only when a step needs them (e.g. product ca
 ### Step 8 · Link RahulCoolGram to the API
 
 - **Goal:** a customer who talks to the store.
-- **Build:** RahulCoolGram already exists (`apps/rahulcoolgram`). Add `POST /webhooks/rahulcoolgram` to our API: it receives RahulCoolGram's JSON, finds-or-creates the contact and conversation, and stores the message.
+- **Build:** RahulCoolGram already exists (`apps/rahulcoolgram`). Add `POST /webhooks/rahulcoolgram` to our API: it receives RahulCoolGram's JSON, finds-or-creates the customer and conversation, and stores the message.
 - **Learn:** webhooks (#1): who calls whom; two services with separate databases.
 - **Done when:** a RahulCoolGram message appears in the dashboard after a refresh.
 - **Interview:** "What's a webhook, and how is it different from polling an API?"
@@ -430,7 +430,7 @@ See `PRODUCTION_GRADE.md` #5 for why these tools were chosen (and why LangSmith 
 - [x] 5 Seed data (2 demo conversations; richer data with step 6)
 - [x] 6 Dashboard reads the API (generated types, web CI, defaults for fields the API lacks)
 - [x] 7 Staff can reply (Idempotency-Key; no optimistic UI yet)
-- [x] 8 Link RahulCoolGram to the API (channels + contact identities)
+- [x] 8 Link RahulCoolGram to the API (channels + customer identities)
 - [x] 9 Webhooks done right
 - [x] 10 Outbound messages (no retries until the worker exists)
 - [x] 11 Live updates (WebSocket straight away, one in-process hub; ADR 0004)

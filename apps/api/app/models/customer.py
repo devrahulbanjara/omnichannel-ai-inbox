@@ -7,10 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.models.base import Base, utc_now
 
 
-class Contact(Base):
+class Customer(Base):
     """A customer of a store."""
 
-    __tablename__ = "contacts"
+    __tablename__ = "customers"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid7)
     org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("organizations.id"), index=True)

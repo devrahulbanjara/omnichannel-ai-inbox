@@ -13,7 +13,7 @@ class Message(Base):
     __tablename__ = "messages"
     __table_args__ = (
         CheckConstraint("direction IN ('in', 'out')", name="direction_valid"),
-        CheckConstraint("sender_type IN ('contact', 'staff', 'ai')", name="sender_type_valid"),
+        CheckConstraint("sender_type IN ('customer', 'staff', 'ai')", name="sender_type_valid"),
         CheckConstraint(
             "delivery_status IN ('queued', 'sent', 'failed')", name="delivery_status_valid"
         ),

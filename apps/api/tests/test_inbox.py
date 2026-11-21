@@ -15,7 +15,7 @@ def test_list_conversations_newest_first(client):
     assert response.status_code == 200
     names = []
     for conversation in response.json():
-        names.append(conversation["contact_name"])
+        names.append(conversation["customer_name"])
     assert names == ["Anisha Karki", "Sujan Maharjan", "Bikash Thapa"]
 
 
@@ -27,7 +27,7 @@ def test_list_messages_of_a_conversation(client):
     assert response.status_code == 200
     [message] = response.json()
     assert message["direction"] == "in"
-    assert message["sender_type"] == "contact"
+    assert message["sender_type"] == "customer"
 
 
 def test_list_messages_of_unknown_conversation_is_404(client):

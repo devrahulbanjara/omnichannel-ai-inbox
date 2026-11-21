@@ -119,10 +119,10 @@ export interface components {
              */
             id: string;
             /**
-             * Contact Name
+             * Customer Name
              * @description The customer's display name on their channel
              */
-            contact_name: string;
+            customer_name: string;
             /**
              * Channel
              * @description The app the customer wrote from, e.g. rahulcoolgram
@@ -215,7 +215,7 @@ export interface components {
             conversation_id: string;
             /** @description in = from the customer, out = to the customer */
             direction: components["schemas"]["Direction"];
-            /** @description contact = the customer, staff = a store employee, ai = the AI agent */
+            /** @description customer = the customer, staff = a store employee, ai = the AI agent */
             sender_type: components["schemas"]["SenderType"];
             /** Text */
             text: string;
@@ -272,7 +272,7 @@ export interface components {
          * SenderType
          * @enum {string}
          */
-        SenderType: "contact" | "staff" | "ai";
+        SenderType: "customer" | "staff" | "ai";
         /** WebhookReceipt */
         WebhookReceipt: {
             /**

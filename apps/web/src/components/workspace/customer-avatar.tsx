@@ -15,7 +15,7 @@ export function ChannelBadge({ channel, className }: { channel: ChannelType; cla
   )
 }
 
-export function ContactAvatar({
+export function CustomerAvatar({
   name,
   channel,
   size = "default",

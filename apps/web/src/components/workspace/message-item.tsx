@@ -65,7 +65,7 @@ export function MessageItem({ message: m }: { message: MessageT }) {
       </Marker>
     )
 
-  const outgoing = m.sender !== "contact"
+  const outgoing = m.sender !== "customer"
   const fromAI = m.sender === "ai"
 
   return (
