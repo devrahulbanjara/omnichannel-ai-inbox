@@ -14,6 +14,7 @@ def make_conversation() -> Conversation:
         customer_id=uuid.uuid7(),
         channel_id=uuid.uuid7(),
         last_message_at=datetime(2026, 1, 1, tzinfo=UTC),
+        unread_count=0,
     )
 
 
@@ -62,3 +63,28 @@ def test_latest_message_becomes_the_preview():
     conversation.reply_as_staff("Hello! How can I help?")
 
     assert conversation.last_message_text == "Hello! How can I help?"
+
+
+def test_customer_message_counts_as_unread():
+    conversation = make_conversation()
+
+    conversation.receive_from_customer("Hi", external_id="rcg-message-1")
+    conversation.receive_from_customer("Anyone?", external_id="rcg-message-2")
+
+    assert conversation.unread_count == 2
+
+
+def test_mark_read_clears_the_unread_count():
+    conversation = make_conversation()
+    conversation.receive_from_customer("Hi", external_id="rcg-message-1")
+
+    changed = conversation.mark_read()
+
+    assert changed is True
+    assert conversation.unread_count == 0
+
+
+def test_mark_read_reports_no_change_when_nothing_is_unread():
+    conversation = make_conversation()
+
+    assert conversation.mark_read() is False

@@ -38,6 +38,10 @@ export const fetchConversations = () => request<ApiConversation[]>("/conversatio
 export const fetchMessages = (conversationId: string) =>
   request<ApiMessage[]>(`/conversations/${conversationId}/messages`)
 
+// Marks the conversation as seen for all staff. Safe to repeat.
+export const markRead = (conversationId: string) =>
+  request<ApiConversation>(`/conversations/${conversationId}/read`, { method: "POST" })
+
 // The same idempotency key on a resend makes the API return the first reply instead of a second.
 export const sendReply = (conversationId: string, text: string, idempotencyKey: string) =>
   request<ApiMessage>(`/conversations/${conversationId}/messages`, {

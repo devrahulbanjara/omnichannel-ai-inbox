@@ -8,6 +8,7 @@ import {
   fetchMessages,
   fetchOrganization,
   LIVE_URL,
+  markRead,
   sendReply,
 } from "./api"
 import { conversationFromApi, messageFromApi } from "./from-api"
@@ -50,7 +51,18 @@ export function useSendReply() {
   })
 }
 
-type LiveEvent = { type: "message.created" | "message.updated"; conversation_id: string }
+export function useMarkRead() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: markRead,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["conversations"] }),
+  })
+}
+
+type LiveEvent = {
+  type: "message.created" | "message.updated" | "conversation.updated"
+  conversation_id: string
+}
 
 // Keeps a WebSocket open to the API and reloads whatever an event says has changed.
 // Reconnects after a drop and then reloads everything, because events sent while offline are lost.
