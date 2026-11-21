@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 
 const NAV = [
   { label: "Inbox", icon: Inbox, active: true },
-  { label: "Contacts", icon: Users },
+  { label: "Customers", icon: Users },
   { label: "Tickets", icon: Ticket },
   { label: "Orders", icon: ShoppingBag },
   { label: "AI agent", icon: AiMark },

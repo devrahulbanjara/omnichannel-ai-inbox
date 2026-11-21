@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError
-from app.models import Channel, Contact, Conversation, Organization
+from app.models import Channel, Conversation, Customer, Organization
 from app.models.base import utc_now
 
 
@@ -33,17 +33,17 @@ class ConversationService:
             raise NotFoundError("Conversation not found")
         return conversation
 
-    async def get_or_start(self, contact: Contact, channel: Channel) -> Conversation:
-        """The contact's conversation on this channel, created on their first message."""
+    async def get_or_start(self, customer: Customer, channel: Channel) -> Conversation:
+        """The customer's conversation on this channel, created on their first message."""
         conversation = await self.session.scalar(
             select(Conversation).where(
-                Conversation.contact_id == contact.id, Conversation.channel_id == channel.id
+                Conversation.customer_id == customer.id, Conversation.channel_id == channel.id
             )
         )
         if conversation is None:
             conversation = Conversation(
-                org_id=contact.org_id,
-                contact=contact,
+                org_id=customer.org_id,
+                customer=customer,
                 channel=channel,
                 last_message_at=utc_now(),
             )

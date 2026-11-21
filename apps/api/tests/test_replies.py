@@ -1,6 +1,6 @@
 def conversation_id_of(client, name: str) -> str:
     for conversation in client.get("/conversations").json():
-        if conversation["contact_name"] == name:
+        if conversation["customer_name"] == name:
             return conversation["id"]
     raise AssertionError(f"No conversation with {name}")
 

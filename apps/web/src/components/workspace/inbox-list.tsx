@@ -11,7 +11,7 @@ import { CHANNEL_LABEL, CHANNEL_TYPES } from "@/lib/channels"
 import { useOrganization } from "@/lib/queries"
 import type { ChannelType, Conversation } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { ContactAvatar } from "./contact-avatar"
+import { CustomerAvatar } from "./customer-avatar"
 import { AssigneeTag, preview } from "./shared"
 
 const FILTERS = {
@@ -44,7 +44,7 @@ export function InboxList({
         (c) =>
           FILTERS[filter](c) &&
           (!channel || c.channel === channel) &&
-          c.contact.name.toLowerCase().includes(query.trim().toLowerCase()),
+          c.customer.name.toLowerCase().includes(query.trim().toLowerCase()),
       ),
     [conversations, filter, channel, query],
   )
@@ -117,11 +117,11 @@ export function InboxList({
                   c.id === selectedId && "glass-raised border-primary/20 hover:bg-[var(--glass-raised)]",
                 )}
               >
-                <ContactAvatar name={c.contact.name} channel={c.channel} />
+                <CustomerAvatar name={c.customer.name} channel={c.channel} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
                     <p className={cn("flex-1 truncate text-sm", c.unread ? "font-semibold" : "font-medium")}>
-                      {c.contact.name}
+                      {c.customer.name}
                     </p>
                     <span className="text-meta">{c.lastAt}</span>
                   </div>

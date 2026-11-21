@@ -12,7 +12,7 @@ export type Message =
   | {
       id: string
       kind: "text"
-      sender: "contact" | "ai" | "staff"
+      sender: "customer" | "ai" | "staff"
       text: string
       at: string
       status?: "queued" | "sent" | "failed" | "delivered" | "read"
@@ -46,7 +46,7 @@ export type Order = {
 
 export type Conversation = {
   id: string
-  contact: { name: string; handle: string; phone?: string; address?: string }
+  customer: { name: string; handle: string; phone?: string; address?: string }
   channel: ChannelType
   assignee: Assignee
   needsHuman: boolean

@@ -19,7 +19,7 @@ class MessageRead(BaseModel):
     ]
     sender_type: Annotated[
         SenderType,
-        Field(description="contact = the customer, staff = a store employee, ai = the AI agent"),
+        Field(description="customer = the customer, staff = a store employee, ai = the AI agent"),
     ]
     text: str
     delivery_status: Annotated[

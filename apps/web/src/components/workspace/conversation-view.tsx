@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { CHANNEL_LABEL } from "@/lib/channels"
 import type { Assignee, Conversation } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { ContactAvatar } from "./contact-avatar"
+import { CustomerAvatar } from "./customer-avatar"
 import { MessageItem } from "./message-item"
 import { AssigneeTag } from "./shared"
 
@@ -56,11 +56,11 @@ export function ConversationView({
             <ArrowLeft />
           </Button>
         )}
-        <ContactAvatar name={c.contact.name} channel={c.channel} />
+        <CustomerAvatar name={c.customer.name} channel={c.channel} />
         <div className="min-w-0 flex-1">
-          <p className="text-title truncate">{c.contact.name}</p>
+          <p className="text-title truncate">{c.customer.name}</p>
           <p className="text-caption truncate">
-            {c.contact.handle} · {CHANNEL_LABEL[c.channel]}
+            {c.customer.handle} · {CHANNEL_LABEL[c.channel]}
           </p>
         </div>
         <AssigneeTag conversation={c} className="hidden sm:inline-flex" />

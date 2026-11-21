@@ -14,7 +14,7 @@ class Direction(StrEnum):
 
 
 class SenderType(StrEnum):
-    CONTACT = "contact"  # the customer
+    CUSTOMER = "customer"  # the customer
     STAFF = "staff"  # a store employee
     AI = "ai"  # the AI agent
 

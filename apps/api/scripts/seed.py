@@ -1,6 +1,6 @@
 """Seed demo data for local development: `uv run python -m scripts.seed [--reset]`.
 
-Contacts are RahulCoolGram's demo customers, linked by their RahulCoolGram ids, so new messages
+Customers are RahulCoolGram's demo customers, linked by their RahulCoolGram ids, so new messages
 from those customers land in these conversations. The seeded history exists only in the inbox.
 Every demo store also gets its products (scripts/demo_catalog.py).
 """
@@ -20,9 +20,9 @@ from app.core.database import SessionLocal
 from app.models import (
     Base,
     Channel,
-    Contact,
-    ContactIdentity,
     Conversation,
+    Customer,
+    CustomerIdentity,
     Message,
     Organization,
     Product,
@@ -38,16 +38,16 @@ DEMO_CHATS = [
         "anisha",
         "Anisha Karki",
         "anisha.k",
-        [(6, "contact", "What is the price of the travel backpack?")],
+        [(6, "customer", "What is the price of the travel backpack?")],
     ),
     (
         "sujan",
         "Sujan Maharjan",
         "sujan.mhj",
         [
-            (45, "contact", "Do you have the 24-inch suitcase in black?"),
+            (45, "customer", "Do you have the 24-inch suitcase in black?"),
             (42, "staff", "Yes, the Everest Hardshell 24-inch comes in black. It is Rs 5,900."),
-            (30, "contact", "Can you deliver to Baneshwor?"),
+            (30, "customer", "Can you deliver to Baneshwor?"),
         ],
     ),
     (
@@ -55,14 +55,14 @@ DEMO_CHATS = [
         "Bikash Thapa",
         "bikash_thapa",
         [
-            (180, "contact", "Is the duffel bag waterproof?"),
+            (180, "customer", "Is the duffel bag waterproof?"),
             (175, "staff", "It is water resistant, good for rain, not for full soaking."),
-            (170, "contact", "Ok thank you"),
+            (170, "customer", "Ok thank you"),
         ],
     ),
 ]
 SENDERS = {
-    "contact": (Direction.IN, SenderType.CONTACT),
+    "customer": (Direction.IN, SenderType.CUSTOMER),
     "staff": (Direction.OUT, SenderType.STAFF),
 }
 STOCK_LEVELS = [0, 2, 5, 8, 12, 20, 35]  # 0 means out of stock
@@ -78,20 +78,20 @@ async def seed_demo_data(session: AsyncSession) -> None:
     await session.flush()
 
     for external_id, name, username, messages in DEMO_CHATS:
-        contact = Contact(org_id=org.id, name=name)
-        session.add(contact)
+        customer = Customer(org_id=org.id, name=name)
+        session.add(customer)
         await session.flush()
         session.add(
-            ContactIdentity(
+            CustomerIdentity(
                 org_id=org.id,
-                contact_id=contact.id,
+                customer_id=customer.id,
                 channel_id=channel.id,
                 external_user_id=external_id,
                 username=username,
             )
         )
         conversation = Conversation(
-            org_id=org.id, contact=contact, channel=channel, last_message_at=utc_now()
+            org_id=org.id, customer=customer, channel=channel, last_message_at=utc_now()
         )
         session.add(conversation)
         await session.flush()

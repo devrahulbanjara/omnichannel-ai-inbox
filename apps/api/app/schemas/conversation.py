@@ -11,7 +11,7 @@ class ConversationRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
-    contact_name: Annotated[str, Field(description="The customer's display name on their channel")]
+    customer_name: Annotated[str, Field(description="The customer's display name on their channel")]
     channel: Annotated[
         str,
         Field(

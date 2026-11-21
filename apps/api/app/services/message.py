@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.channels.base import DeliveryError
 from app.channels.registry import ADAPTERS
 from app.core.events import events
-from app.models import ContactIdentity, Conversation, Message
+from app.models import Conversation, CustomerIdentity, Message
 from app.models.enums import DeliveryStatus
 
 
@@ -59,13 +59,13 @@ class MessageService:
         """Hand the message to the channel and record the result. Never raises."""
         try:
             identity = await self.session.scalar(
-                select(ContactIdentity).where(
-                    ContactIdentity.contact_id == conversation.contact_id,
-                    ContactIdentity.channel_id == conversation.channel_id,
+                select(CustomerIdentity).where(
+                    CustomerIdentity.customer_id == conversation.customer_id,
+                    CustomerIdentity.channel_id == conversation.channel_id,
                 )
             )
             if identity is None:
-                raise DeliveryError("This contact has no account on the channel")
+                raise DeliveryError("This customer has no account on the channel")
             adapter = ADAPTERS[conversation.channel.type]
             message.external_id = await adapter.send(identity.external_user_id, message.text)
             message.delivery_status = DeliveryStatus.SENT

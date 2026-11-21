@@ -21,7 +21,7 @@ function channelFromApi(name: string): Conversation["channel"] {
 export function conversationFromApi(api: ApiConversation): Conversation {
   return {
     id: api.id,
-    contact: { name: api.contact_name, handle: "" },
+    customer: { name: api.customer_name, handle: "" },
     channel: channelFromApi(api.channel),
     lastAt: formatTime(api.last_message_at),
     lastMessageText: api.last_message_text ?? undefined,

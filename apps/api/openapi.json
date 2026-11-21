@@ -395,9 +395,9 @@
             "format": "uuid",
             "title": "Id"
           },
-          "contact_name": {
+          "customer_name": {
             "type": "string",
-            "title": "Contact Name",
+            "title": "Customer Name",
             "description": "The customer's display name on their channel"
           },
           "channel": {
@@ -430,7 +430,7 @@
         "type": "object",
         "required": [
           "id",
-          "contact_name",
+          "customer_name",
           "channel",
           "status",
           "last_message_at",
@@ -566,7 +566,7 @@
           },
           "sender_type": {
             "$ref": "#/components/schemas/SenderType",
-            "description": "contact = the customer, staff = a store employee, ai = the AI agent"
+            "description": "customer = the customer, staff = a store employee, ai = the AI agent"
           },
           "text": {
             "type": "string",
@@ -698,7 +698,7 @@
       "SenderType": {
         "type": "string",
         "enum": [
-          "contact",
+          "customer",
           "staff",
           "ai"
         ],
