@@ -12,7 +12,7 @@ from app.models.enums import DeliveryStatus
 
 
 class MessageService:
-    """Message queries, staff replies and their delivery to the channel."""
+    """Message queries, staff and AI replies, and their delivery to the channel."""
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -51,6 +51,16 @@ class MessageService:
                 raise
             return existing
         await events.publish("message.created", conversation_id=str(conversation_id))
+
+        await self._deliver(conversation, message)
+        return message
+
+    async def send_ai_reply(self, conversation: Conversation, text: str) -> Message:
+        """Save the AI agent's reply, then deliver it."""
+        message = conversation.reply_as_ai(text)
+        self.session.add(message)
+        await self.session.commit()  # message and conversation update in one transaction
+        await events.publish("message.created", conversation_id=str(conversation.id))
 
         await self._deliver(conversation, message)
         return message

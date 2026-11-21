@@ -13,9 +13,12 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
+from app.agent.loop import Agent, get_agent
+from app.agent.tools.search_products import SearchProductsTool
 from app.channels.base import DeliveryError
 from app.channels.rahulcoolgram import RahulCoolGramAdapter
 from app.core.database import SessionLocal, engine
+from app.llm.client import LLMClient, LLMError, LLMResult
 from app.main import create_app
 from app.models import Base
 from scripts.seed import seed_demo_data
@@ -50,10 +53,34 @@ def demo_data():
     asyncio.run(reset())
 
 
+class FakeLLM(LLMClient):
+    """Stands in for the model. Answers with `answer`; set `down` to fail like a provider outage.
+    Records the messages of every call."""
+
+    def __init__(self) -> None:
+        self.answer = "Thanks for your message!"
+        self.down = False
+        self.calls: list[list] = []
+
+    async def generate(self, messages, tools=None, prompt=None) -> LLMResult:
+        self.calls.append(list(messages))
+        if self.down:
+            raise LLMError("fake model is down")
+        return LLMResult(self.answer, [], 0, 0, 0, "fake")
+
+
 @pytest.fixture
-def client():
+def llm() -> FakeLLM:
+    """Tests never call the real model."""
+    return FakeLLM()
+
+
+@pytest.fixture
+def client(llm):
     """A fresh app per test, so dependency overrides never leak between tests."""
-    with TestClient(create_app()) as client:
+    app = create_app()
+    app.dependency_overrides[get_agent] = lambda: Agent(llm, [SearchProductsTool()])
+    with TestClient(app) as client:
         yield client
 
 

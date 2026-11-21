@@ -5,6 +5,7 @@ from sqlalchemy import func, select
 
 from app.core.database import SessionLocal
 from app.models import WebhookEvent
+from tests.test_replies import message_texts
 
 KEY = {"X-RahulCoolGram-Key": "dev-secret"}
 
@@ -51,10 +52,11 @@ def test_first_message_from_a_new_customer_starts_a_conversation(client):
     newest = client.get("/conversations").json()[0]
     assert newest["customer_name"] == "Prabin Gurung"
     assert newest["channel"] == "rahulcoolgram"
-    assert newest["last_message_text"] == "Namaste"
-    [message] = client.get(f"/conversations/{newest['id']}/messages").json()
+    [message, ai_reply] = client.get(f"/conversations/{newest['id']}/messages").json()
+    assert message["text"] == "Namaste"
     assert message["sender_type"] == "customer"
     assert message["direction"] == "in"
+    assert ai_reply["sender_type"] == "ai"
 
 
 def test_known_customer_continues_their_conversation(client):
@@ -69,10 +71,11 @@ def test_known_customer_continues_their_conversation(client):
     conversations = client.get("/conversations").json()
     assert len(conversations) == before
     assert conversations[0]["customer_name"] == "Sujan Maharjan"
-    assert conversations[0]["last_message_text"] == "Still there?"
+    texts = message_texts(client, f"/conversations/{conversations[0]['id']}/messages")
+    assert "Still there?" in texts
 
 
-def test_resent_webhook_saves_the_message_once(client):
+def test_resent_webhook_saves_the_message_once_and_replies_once(client, llm):
     body = webhook_body(message_id="rcg-123")
 
     first = client.post("/webhooks/rahulcoolgram", json=body, headers=KEY)
@@ -81,5 +84,7 @@ def test_resent_webhook_saves_the_message_once(client):
     assert first.json() == {"status": "saved"}
     assert second.json() == {"status": "duplicate"}
     conversation_id = client.get("/conversations").json()[0]["id"]
-    assert len(client.get(f"/conversations/{conversation_id}/messages").json()) == 1
+    texts = message_texts(client, f"/conversations/{conversation_id}/messages")
+    assert texts == ["Namaste", llm.answer]
     assert count_webhook_events() == 1
+    assert len(llm.calls) == 1

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.events import events
 from app.core.exceptions import NotFoundError
-from app.models import Channel, Customer, CustomerIdentity, WebhookEvent
+from app.models import Channel, Conversation, Customer, CustomerIdentity, WebhookEvent
 from app.models.base import utc_now
 from app.models.enums import ChannelType
 from app.schemas.webhook import RahulCoolGramCustomer, RahulCoolGramWebhook
@@ -17,8 +17,9 @@ class WebhookService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def receive_rahulcoolgram(self, body: RahulCoolGramWebhook) -> bool:
-        """Save the customer's message. Returns False if this message_id was already received."""
+    async def receive_rahulcoolgram(self, body: RahulCoolGramWebhook) -> Conversation | None:
+        """Save the customer's message and return its conversation. Returns None if this
+        message_id was already received."""
         channel = await self._rahulcoolgram_channel()
 
         # Store the raw event first; the unique (channel_id, external_id) key turns a resend
@@ -35,7 +36,7 @@ class WebhookService:
             .returning(WebhookEvent.id)
         )
         if event_id is None:
-            return False
+            return None
 
         customer = await self._get_or_create_customer(channel, body.customer)
         conversation = await ConversationService(self.session).get_or_start(customer, channel)
@@ -46,7 +47,7 @@ class WebhookService:
         await self.session.commit()
 
         await events.publish("message.created", conversation_id=str(conversation.id))
-        return True
+        return conversation
 
     async def _rahulcoolgram_channel(self) -> Channel:
         # RahulCoolGram has a single store account, so there is one RahulCoolGram channel.
