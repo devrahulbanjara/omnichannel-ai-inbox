@@ -17,7 +17,7 @@ class ScriptedLLM(LLMClient):
         self.results = results
         self.sent: list[list[ChatCompletionMessageParam]] = []
 
-    async def generate(self, messages, tools=None) -> LLMResult:
+    async def generate(self, messages, tools=None, prompt=None) -> LLMResult:
         self.sent.append(list(messages))
         return self.results.pop(0)
 

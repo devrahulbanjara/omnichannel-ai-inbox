@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import langfuse.openai  # noqa: F401  patches openai so every call is traced
 import openai
 from langfuse import Langfuse
+from langfuse.model import PromptClient
 from loguru import logger
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionToolParam
 
@@ -59,13 +60,18 @@ class LLMClient:
         self,
         messages: list[ChatCompletionMessageParam],
         tools: list[ChatCompletionToolParam] | None = None,
+        prompt: PromptClient | None = None,
     ) -> LLMResult:
+        """`prompt` links the call to that prompt version in Langfuse."""
+
         started = time.monotonic()
         try:
+            # langfuse_prompt is read by the Langfuse patch and not sent to the provider.
             response = await self.openai.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 tools=tools or openai.omit,
+                langfuse_prompt=prompt,  # type: ignore[call-arg]
             )
         except openai.APIError as exc:
             raise LLMError(f"{self.model} failed: {exc}") from exc
