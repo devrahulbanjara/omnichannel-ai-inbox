@@ -120,12 +120,19 @@ export function InboxList({
                 <CustomerAvatar name={c.customer.name} channel={c.channel} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
-                    <p className={cn("flex-1 truncate text-sm", c.unread ? "font-semibold" : "font-medium")}>
+                    <p className={cn("flex-1 truncate text-sm", c.unread ? "font-bold" : "font-medium")}>
                       {c.customer.name}
                     </p>
                     <span className="text-meta">{c.lastAt}</span>
                   </div>
-                  <p className="mt-0.5 truncate text-sm text-muted-foreground">{preview(c)}</p>
+                  <p
+                    className={cn(
+                      "mt-0.5 truncate text-sm",
+                      c.unread ? "font-semibold text-foreground" : "text-muted-foreground",
+                    )}
+                  >
+                    {preview(c)}
+                  </p>
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <AssigneeTag conversation={c} />
                     {c.score >= 80 && (

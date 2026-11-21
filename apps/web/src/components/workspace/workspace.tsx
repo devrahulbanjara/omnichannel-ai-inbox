@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useSyncExternalStore } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { ApiError } from "@/lib/api"
-import { useConversations, useLiveUpdates, useMessages, useSendReply } from "@/lib/queries"
+import { useConversations, useLiveUpdates, useMarkRead, useMessages, useSendReply } from "@/lib/queries"
 import type { Assignee, Conversation } from "@/lib/types"
 import { AppRail } from "./app-rail"
 import { ContextPanel } from "./context-panel"
@@ -19,6 +19,25 @@ function useMedia(query: string) {
     },
     () => window.matchMedia(query).matches,
     () => true,
+  )
+}
+
+// True while this tab is on screen and focused, i.e. someone is at the dashboard.
+// A background tab, or a window behind other apps, is not being read.
+function usePageActive() {
+  return useSyncExternalStore(
+    (cb) => {
+      document.addEventListener("visibilitychange", cb)
+      window.addEventListener("focus", cb)
+      window.addEventListener("blur", cb)
+      return () => {
+        document.removeEventListener("visibilitychange", cb)
+        window.removeEventListener("focus", cb)
+        window.removeEventListener("blur", cb)
+      }
+    },
+    () => document.visibilityState === "visible" && document.hasFocus(),
+    () => false,
   )
 }
 
@@ -53,6 +72,8 @@ export function Workspace() {
 
 function WorkspaceScreen({ conversations }: { conversations: Conversation[] }) {
   const [selectedId, setSelectedId] = useState(conversations[0].id)
+  // The conversation a staff member clicked. The one shown on first load is not counted as read.
+  const [openedId, setOpenedId] = useState<string | null>(null)
   // Assignment has no API yet, so it is kept in this browser only.
   const [assignees, setAssignees] = useState<Record<string, Assignee>>({})
   const [mobileView, setMobileView] = useState<"list" | "thread" | "details">("list")
@@ -65,6 +86,15 @@ function WorkspaceScreen({ conversations }: { conversations: Conversation[] }) {
   const { data: messages = [] } = useMessages(current.id)
   const selected = { ...current, messages }
   const sendReply = useSendReply()
+  const { mutate: markRead } = useMarkRead()
+
+  const pageActive = usePageActive()
+
+  // An opened conversation counts as read while someone is at this tab, including messages that
+  // arrive while it is open. A message that arrives while they are away is read when they return.
+  useEffect(() => {
+    if (pageActive && current.id === openedId && current.unread > 0) markRead(current.id)
+  }, [pageActive, current.id, current.unread, openedId, markRead])
 
   const assign = (assignee: Assignee) => setAssignees((all) => ({ ...all, [selected.id]: assignee }))
 
@@ -73,6 +103,7 @@ function WorkspaceScreen({ conversations }: { conversations: Conversation[] }) {
 
   const select = (id: string) => {
     setSelectedId(id)
+    setOpenedId(id)
     sendReply.reset()
     setMobileView("thread")
   }
