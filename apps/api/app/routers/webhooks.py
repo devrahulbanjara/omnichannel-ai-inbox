@@ -4,11 +4,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.agent.loop import Agent, get_agent
 from app.core.config import settings
 from app.core.database import get_session
 from app.core.exceptions import UnauthorizedError
 from app.schemas.error import ERROR_RESPONSES
 from app.schemas.webhook import RahulCoolGramWebhook, WebhookReceipt
+from app.services.agent_reply import AgentReplyService
 from app.services.webhook import WebhookService
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"], responses=ERROR_RESPONSES)
@@ -26,7 +28,14 @@ def check_rahulcoolgram_key(
 async def receive_rahulcoolgram(
     body: RahulCoolGramWebhook,
     session: Annotated[AsyncSession, Depends(get_session)],
+    agent: Annotated[Agent, Depends(get_agent)],
 ) -> WebhookReceipt:
     webhook_service = WebhookService(session)
-    saved = await webhook_service.receive_rahulcoolgram(body)
-    return WebhookReceipt(status="saved" if saved else "duplicate")
+    conversation = await webhook_service.receive_rahulcoolgram(body)
+    if conversation is None:
+        return WebhookReceipt(status="duplicate")
+
+    # The agent runs inside the request, so RahulCoolGram waits for the model's answer.
+    agent_reply_service = AgentReplyService(session, agent)
+    await agent_reply_service.reply_to(conversation)
+    return WebhookReceipt(status="saved")

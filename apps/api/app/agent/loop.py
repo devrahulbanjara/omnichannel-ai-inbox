@@ -9,6 +9,7 @@ from openai.types.chat import (
 )
 
 from app.agent.tools.base import Tool, ToolContext
+from app.agent.tools.search_products import SearchProductsTool
 from app.llm.client import LLMClient, ToolCall
 
 MAX_STEPS = 5  # model calls per reply; stops a model that keeps calling tools
@@ -75,3 +76,8 @@ class Agent:
             output = await tool.call(call.arguments, context)
         logger.info("Tool {}({}) returned {} characters", call.name, call.arguments, len(output))
         return output
+
+
+def get_agent() -> Agent:
+    """The agent with its model and tools. A FastAPI dependency, so tests can replace it."""
+    return Agent(LLMClient(), [SearchProductsTool()])
