@@ -1,17 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, ArrowUp, CircleCheck, Lock, PanelRightOpen, Paperclip, ShoppingBag } from "lucide-react"
+import { ArrowLeft, ArrowUp, CircleCheck, PanelRightOpen, Paperclip, ShoppingBag } from "lucide-react"
 import { AiMark } from "@/components/ui/ai-mark"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -24,12 +16,10 @@ import { Panel } from "@/components/ui/surface"
 import { Textarea } from "@/components/ui/textarea"
 import { CHANNEL_LABEL } from "@/lib/channels"
 import type { Assignee, Conversation } from "@/lib/types"
-import { cn } from "@/lib/utils"
 import { CustomerAvatar } from "./customer-avatar"
 import { MessageItem } from "./message-item"
 import { AssigneeTag } from "./shared"
 
-const TEAM = ["Anisha K.", "Rojan B."]
 
 export function ConversationView({
   conversation: c,
@@ -40,13 +30,13 @@ export function ConversationView({
   onOpenDetails,
 }: {
   conversation: Conversation
-  onAssign: (assignee: Assignee) => void
+  onAssign: (owner: Assignee["type"]) => void
   onSend: (text: string) => void
   sendError?: string
   onBack?: () => void
   onOpenDetails?: () => void
 }) {
-  const canReply = c.assignee.type === "staff" && c.assignee.isMe
+  const canReply = c.assignee.type === "staff"
 
   return (
     <Panel>
@@ -102,56 +92,20 @@ export function ConversationView({
       <footer className="p-3 pt-0">
         {sendError && <p className="px-1 pb-2 text-sm text-destructive">Reply not saved: {sendError}</p>}
         {canReply ? (
-          <Composer onSend={onSend} onHandToAI={() => onAssign({ type: "ai" })} />
+          <Composer onSend={onSend} onHandToAI={() => onAssign("ai")} />
         ) : (
-          <div
-            className={cn(
-              "flex flex-wrap items-center gap-3 rounded-xl px-4 py-3",
-              c.assignee.type === "ai" ? "ai-working bg-card" : "glass-raised",
-            )}
-          >
-            {c.assignee.type === "ai" ? <AiMark active /> : <Lock className="size-4 text-muted-foreground" />}
+          <div className="ai-working flex flex-wrap items-center gap-3 rounded-xl bg-card px-4 py-3">
+            <AiMark active />
             <p className="min-w-48 flex-1 text-sm text-muted-foreground">
-              {c.assignee.type === "ai"
-                ? "The AI agent is handling this conversation."
-                : c.assignee.type === "staff"
-                  ? `${c.assignee.name} is handling this conversation.`
-                  : "Unassigned — assign it to reply."}
+              The AI agent is handling this conversation. Take it over to reply yourself.
             </p>
-            <div className="flex gap-2">
-              <AssignMenu onAssign={onAssign} />
-              <Button variant="brand" size="sm" onClick={() => onAssign({ type: "staff", name: "You", isMe: true })}>
-                Assign yourself
-              </Button>
-            </div>
+            <Button variant="brand" size="sm" onClick={() => onAssign("staff")}>
+              Assign yourself
+            </Button>
           </div>
         )}
       </footer>
     </Panel>
-  )
-}
-
-function AssignMenu({ onAssign }: { onAssign: (a: Assignee) => void }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          Assign…
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={() => onAssign({ type: "ai" })}>
-          <AiMark /> AI agent
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel>Team</DropdownMenuLabel>
-        {TEAM.map((name) => (
-          <DropdownMenuItem key={name} onSelect={() => onAssign({ type: "staff", name, isMe: false })}>
-            {name}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
   )
 }
 

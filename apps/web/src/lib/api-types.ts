@@ -89,6 +89,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/conversations/{conversation_id}/owner": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Conversation Owner
+         * @description Give the conversation to the AI or to staff. Only the owner can send messages.
+         */
+        put: operations["set_conversation_owner_conversations__conversation_id__owner_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/conversations/{conversation_id}/messages": {
         parameters: {
             query?: never;
@@ -128,6 +148,12 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * ConversationOwner
+         * @description Who answers the customer. Only the owner can send messages.
+         * @enum {string}
+         */
+        ConversationOwner: "ai" | "staff";
         /** ConversationRead */
         ConversationRead: {
             /**
@@ -162,6 +188,8 @@ export interface components {
              * @description Customer messages no staff member has seen yet
              */
             unread_count: number;
+            /** @description Who answers the customer: the AI agent or staff. Only the owner sends */
+            owner: components["schemas"]["ConversationOwner"];
         };
         /**
          * ConversationStatus
@@ -264,6 +292,11 @@ export interface components {
             id: string;
             /** Name */
             name: string;
+        };
+        /** OwnerChange */
+        OwnerChange: {
+            /** @description The new owner of the conversation */
+            owner: components["schemas"]["ConversationOwner"];
         };
         /** RahulCoolGramCustomer */
         RahulCoolGramCustomer: {
@@ -382,6 +415,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Conflicts with the current state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description The request is not valid */
             422: {
                 headers: {
@@ -422,6 +464,15 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflicts with the current state */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -478,6 +529,77 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Conflicts with the current state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request is not valid */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_conversation_owner_conversations__conversation_id__owner_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OwnerChange"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationRead"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflicts with the current state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description The request is not valid */
             422: {
                 headers: {
@@ -520,6 +642,15 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflicts with the current state */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -583,6 +714,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Conflicts with the current state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description The request is not valid */
             422: {
                 headers: {
@@ -629,6 +769,15 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflicts with the current state */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

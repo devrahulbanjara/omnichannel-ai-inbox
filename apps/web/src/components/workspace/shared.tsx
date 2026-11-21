@@ -16,15 +16,11 @@ export function AssigneeTag({ conversation: c, className }: { conversation: Conv
         <AiMark /> AI agent
       </Tag>
     )
-  if (c.assignee.type === "staff")
-    return (
-      <Tag className={className}>
-        <UserRound /> {c.assignee.name}
-      </Tag>
-    )
-  return <Tag tone="warning" className={className}>
-      Unassigned
+  return (
+    <Tag className={className}>
+      <UserRound /> Staff
     </Tag>
+  )
 }
 
 export const LEAD_STAGE: Record<Conversation["leadStage"], string> = {

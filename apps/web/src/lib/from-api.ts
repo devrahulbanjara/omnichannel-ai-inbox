@@ -26,9 +26,9 @@ export function conversationFromApi(api: ApiConversation): Conversation {
     lastAt: formatTime(api.last_message_at),
     lastMessageText: api.last_message_text ?? undefined,
     unread: api.unread_count,
+    assignee: { type: api.owner },
 
     // Defaults, not from the API yet:
-    assignee: { type: "none" },
     needsHuman: false,
     leadStage: "new",
     score: 0,
