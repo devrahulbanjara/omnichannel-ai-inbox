@@ -1,11 +1,22 @@
 import time
 from dataclasses import dataclass
 
+import langfuse.openai  # noqa: F401  patches openai so every call is traced
 import openai
+from langfuse import Langfuse
 from loguru import logger
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionToolParam
 
 from app.core.config import settings
+
+# The patched openai client sends its traces through this client.
+tracing = Langfuse(
+    public_key=settings.langfuse_public_key,
+    secret_key=settings.langfuse_secret_key.get_secret_value(),
+    base_url=settings.langfuse_base_url,
+    tracing_enabled=settings.langfuse_tracing_enabled and bool(settings.langfuse_public_key),
+    environment=settings.environment,
+)
 
 
 @dataclass
@@ -52,7 +63,9 @@ class LLMClient:
         started = time.monotonic()
         try:
             response = await self.openai.chat.completions.create(
-                model=self.model, messages=messages, tools=tools or openai.omit
+                model=self.model,
+                messages=messages,
+                tools=tools or openai.omit,
             )
         except openai.APIError as exc:
             raise LLMError(f"{self.model} failed: {exc}") from exc
@@ -72,6 +85,7 @@ class LLMClient:
             latency_ms=round((time.monotonic() - started) * 1000),
             model=self.model,
         )
+
         logger.info(
             "{} answered: {} tokens in, {} out, {} ms",
             self.model,
@@ -79,4 +93,5 @@ class LLMClient:
             result.output_tokens,
             result.latency_ms,
         )
+
         return result

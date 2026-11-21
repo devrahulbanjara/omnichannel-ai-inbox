@@ -2,6 +2,7 @@ import os
 
 # Must run before the app import: settings are read at import time.
 os.environ["ENVIRONMENT"] = "test"
+os.environ["LANGFUSE_TRACING_ENABLED"] = "false"  # tests send no traces
 os.environ["DATABASE_URL"] = os.environ.get(
     "TEST_DATABASE_URL", "postgresql+asyncpg://inbox:inbox@localhost:5432/inbox_test"
 )

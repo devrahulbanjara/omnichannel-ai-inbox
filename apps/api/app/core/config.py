@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     groq_timeout_seconds: float = 20  # per attempt
     groq_max_retries: int = 2  # after the first attempt
 
+    # Langfuse: traces of every model call. Keys from the project's settings page.
+    langfuse_public_key: str = ""
+    langfuse_secret_key: SecretStr = SecretStr("")
+    langfuse_base_url: str = "https://cloud.langfuse.com"
+    langfuse_tracing_enabled: bool = True  # also off when the keys are empty
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
