@@ -60,6 +60,12 @@ class Conversation(Base):
         message.delivery_status = DeliveryStatus.QUEUED
         return message
 
+    def reply_as_ai(self, text: str) -> Message:
+        """Create an outgoing AI agent message, queued for delivery. Not persisted."""
+        message = self._add_message(text, Direction.OUT, SenderType.AI)
+        message.delivery_status = DeliveryStatus.QUEUED
+        return message
+
     def _add_message(self, text: str, direction: Direction, sender_type: SenderType) -> Message:
         message = Message(
             org_id=self.org_id,

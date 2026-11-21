@@ -88,3 +88,14 @@ def test_mark_read_reports_no_change_when_nothing_is_unread():
     conversation = make_conversation()
 
     assert conversation.mark_read() is False
+
+
+def test_ai_reply_is_outgoing_from_ai_and_queued():
+    conversation = make_conversation()
+
+    message = conversation.reply_as_ai("We have black suitcases.")
+
+    assert message.direction == Direction.OUT
+    assert message.sender_type == SenderType.AI
+    assert message.delivery_status == DeliveryStatus.QUEUED
+    assert conversation.last_message_text == "We have black suitcases."
