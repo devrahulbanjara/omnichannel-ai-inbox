@@ -8,12 +8,14 @@ from app.core.database import engine
 from app.core.errors import add_error_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import request_id_middleware
+from app.llm.client import tracing
 from app.routers import conversations, health, live, organization, webhooks
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     yield
+    tracing.shutdown()  # sends traces still waiting in the buffer
     await engine.dispose()
 
 

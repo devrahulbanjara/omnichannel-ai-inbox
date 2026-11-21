@@ -20,6 +20,7 @@ class ProductService:
     ) -> list[tuple[Product, ProductVariant]]:
         """Variants where every word of the query appears in the product's name, category,
         description or the variant's options. Ordered by product name, then price."""
+
         searchable_text = func.lower(
             func.concat_ws(
                 " ",
@@ -29,11 +30,13 @@ class ProductService:
                 cast(ProductVariant.options, String),
             )
         )
+
         statement = (
             select(Product, ProductVariant)
             .join(ProductVariant, ProductVariant.product_id == Product.id)
             .where(Product.org_id == org.id)
         )
+
         for word in query.lower().split():
             # autoescape: a "%" or "_" typed by the customer is matched literally
             statement = statement.where(searchable_text.contains(word, autoescape=True))

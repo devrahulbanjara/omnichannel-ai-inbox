@@ -40,6 +40,7 @@ class Tool:
     async def call(self, arguments: str, context: ToolContext) -> str:
         """Run the tool. Invalid arguments are returned as text, so the model can correct
         its call instead of the turn crashing."""
+
         try:
             return await self.run(arguments, context)
         except ValidationError as exc:
@@ -48,10 +49,12 @@ class Tool:
     async def run(self, arguments: str, context: ToolContext) -> str:
         """The tool's work. Starts with `args = MyArgs.model_validate_json(arguments)`.
         Returns short text for the model to read."""
+
         raise NotImplementedError
 
     @staticmethod
     def explain_invalid_arguments(exc: ValidationError) -> str:
+
         problems = []
         for error in exc.errors():
             parts = []
