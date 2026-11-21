@@ -51,3 +51,11 @@ def test_empty_answer_is_not_sent(client, llm, rahulcoolgram):
     post_customer_message(client, "Black suitcase?")
 
     assert rahulcoolgram.sent == []
+
+
+def test_markdown_is_removed_before_the_reply_is_sent(client, llm, rahulcoolgram):
+    llm.answer = "**Langtang Softside Trolley**  \nPrice: Rs 4,700"
+
+    post_customer_message(client, "2")
+
+    assert rahulcoolgram.sent == [("sujan", "Langtang Softside Trolley\nPrice: Rs 4,700")]
