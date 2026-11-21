@@ -2,6 +2,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agent.loop import Agent
+from app.agent.postprocessing.reply import postprocess_reply
 from app.agent.prompts.conversation import conversation_prompt
 from app.agent.prompts.system import load_system_prompt
 from app.agent.tools.base import ToolContext
@@ -35,8 +36,10 @@ class AgentReplyService:
             logger.error("No AI reply for conversation {}: {}", conversation.id, exc)
             return None
 
-        if not answer.strip():
+        reply_text = postprocess_reply(answer)
+
+        if not reply_text:
             logger.warning("Empty answer for conversation {}", conversation.id)
             return None
 
-        return await message_service.send_ai_reply(conversation, answer)
+        return await message_service.send_ai_reply(conversation, reply_text)
