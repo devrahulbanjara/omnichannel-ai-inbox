@@ -155,6 +155,69 @@
         }
       }
     },
+    "/conversations/{conversation_id}/read": {
+      "post": {
+        "tags": [
+          "inbox"
+        ],
+        "summary": "Mark Conversation Read",
+        "operationId": "mark_conversation_read_conversations__conversation_id__read_post",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationRead"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request is not valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/conversations/{conversation_id}/messages": {
       "get": {
         "tags": [
@@ -425,6 +488,11 @@
             ],
             "title": "Last Message Text",
             "description": "Text of the latest message, for the preview line"
+          },
+          "unread_count": {
+            "type": "integer",
+            "title": "Unread Count",
+            "description": "Customer messages no staff member has seen yet"
           }
         },
         "type": "object",
@@ -434,7 +502,8 @@
           "channel",
           "status",
           "last_message_at",
-          "last_message_text"
+          "last_message_text",
+          "unread_count"
         ],
         "title": "ConversationRead"
       },

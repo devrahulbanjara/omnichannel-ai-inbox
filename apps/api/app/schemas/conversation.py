@@ -27,3 +27,6 @@ class ConversationRead(BaseModel):
     last_message_text: Annotated[
         str | None, Field(description="Text of the latest message, for the preview line")
     ]
+    unread_count: Annotated[
+        int, Field(description="Customer messages no staff member has seen yet")
+    ]

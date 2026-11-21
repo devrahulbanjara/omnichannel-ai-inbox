@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.events import events
 from app.core.exceptions import NotFoundError
 from app.models import Channel, Conversation, Customer, Organization
 from app.models.base import utc_now
@@ -31,6 +32,13 @@ class ConversationService:
         )
         if conversation is None:
             raise NotFoundError("Conversation not found")
+        return conversation
+
+    async def mark_read(self, conversation: Conversation) -> Conversation:
+        """Mark the conversation as seen and tell every dashboard. Safe to repeat."""
+        if conversation.mark_read():
+            await self.session.commit()
+            await events.publish("conversation.updated", conversation_id=str(conversation.id))
         return conversation
 
     async def get_or_start(self, customer: Customer, channel: Channel) -> Conversation:

@@ -24,6 +24,8 @@ class Conversation(Base):
     status: Mapped[str] = mapped_column(default=ConversationStatus.OPEN)
     last_message_at: Mapped[datetime] = mapped_column(index=True)
     last_message_text: Mapped[str | None]  # shown as the preview line in the inbox list
+    # Customer messages no staff member has seen yet. Shared by all staff of the store.
+    unread_count: Mapped[int] = mapped_column(default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(default=utc_now, server_default=func.now())
 
     # Eager JOINs: every conversation listing displays the customer name and channel.
@@ -42,7 +44,15 @@ class Conversation(Base):
         """Create an incoming customer message. Not persisted; the caller adds it to the session."""
         message = self._add_message(text, Direction.IN, SenderType.CUSTOMER)
         message.external_id = external_id
+        self.unread_count += 1
         return message
+
+    def mark_read(self) -> bool:
+        """Mark every message as seen. Returns False if nothing was unread."""
+        if self.unread_count == 0:
+            return False
+        self.unread_count = 0
+        return True
 
     def reply_as_staff(self, text: str) -> Message:
         """Create an outgoing staff message, queued for delivery. Not persisted."""

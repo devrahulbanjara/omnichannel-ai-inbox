@@ -27,6 +27,19 @@ async def list_conversations(
     return await conversation_service.list_recent(org)
 
 
+@router.post("/{conversation_id}/read", response_model=ConversationRead)
+async def mark_conversation_read(
+    conversation_id: uuid.UUID,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> Conversation:
+    organization_service = OrganizationService(session)
+    conversation_service = ConversationService(session)
+
+    org = await organization_service.get_current()
+    conversation = await conversation_service.get(org, conversation_id)
+    return await conversation_service.mark_read(conversation)
+
+
 @router.get("/{conversation_id}/messages", response_model=list[MessageRead])
 async def list_messages(
     conversation_id: uuid.UUID,
