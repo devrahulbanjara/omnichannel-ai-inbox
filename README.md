@@ -6,12 +6,25 @@ The agent works within strict rules: it can only act through typed tools, and pr
 
 ## Demo
 
+https://github.com/user-attachments/assets/021b00eb-55fa-4824-a6d0-793af72fb43e
+
+1. A customer sends a message from RahulCoolGram.
+2. It reaches the inbox through a webhook and appears on the staff dashboard live, over a WebSocket.
+3. The AI agent owns the conversation by default. It searches the product catalog and answers the customer in their own language.
+4. A staff member clicks "Assign yourself" to take over. The AI stays quiet, and the staff reply is delivered to the customer.
+5. "Hand to AI" gives the conversation back to the agent.
+
+<details>
+<summary>Earlier demo: staff replies only, before the AI agent</summary>
+
 https://github.com/user-attachments/assets/0b9a349b-6b40-4407-8c99-7dbfba5da6ca
 
 1. A customer sends a message from RahulCoolGram.
 2. It reaches the inbox through a webhook and appears on the staff dashboard live, over a WebSocket.
 3. A staff member replies from the dashboard.
 4. The reply is delivered to RahulCoolGram through its API and shows up on the customer's screen.
+
+</details>
 
 ## What we simulate: RahulCoolGram
 
